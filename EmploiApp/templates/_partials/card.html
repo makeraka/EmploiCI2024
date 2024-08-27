@@ -1,0 +1,87 @@
+{% load static %}
+
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-lg-4 col-xl-3 col-md-4  mb-10 ">
+                <!-- begin::card -->
+                <div class="card shadow-lg h-100" style="margin-top:10px;">
+                    <!-- begin::body -->
+                    <div class="card-body d-flex-center flex-column">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="symbol symbol-75px symbol-card mb-2" style="padding-left: 30%;">
+
+                                    <img src="{{ student.profile_pic }}"
+                                        style="width:100px; height: 100px;object-fit: cover;border-radius: 50%; border: 2px solid #ccc; " />
+                                </div>
+                                <!-- end::avatar -->
+                            </div>
+
+                            <div class="col-12">
+                                <div class="fw-semibold text-gray-900 fs-1 text-center"
+                                    style="font-weight: bold;font-size: 1.5rem;text-align: center;color: #343a40;">
+                                    {{ student.admin.first_name }}
+                                    {{ student.admin.last_name }}</div>
+                            </div>
+
+                            <div class="col-12 justify-content-center">
+                                <div class="d-flex flex-stack position-relative mt-8">
+                                    <!--begin::Bar-->
+                                    <div class="position-absolute h-100 w-4px bg-secondary rounded top-0 start-0"></div>
+                                    <!--end::Bar-->
+                                    <!--begin::Info-->
+                                    <div class="fw-semibold ms-5 text-gray-600">
+                                        <!--begin::Time-->
+                                        <div class="fs-5">9:00 - 10:00
+                                        <span class="fs-7 text-gray-400 text-uppercase">am</span></div>
+                                        <!--end::Time-->
+                                        <!--begin::Title-->
+                                        <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">Marketing Campaign Discussion</a>
+                                        <!--end::Title-->
+                                        <!--begin::User-->
+                                        <div class="text-gray-400">Lead by
+                                        <a href="#">Kendell Trevor</a></div>
+                                        <!--end::User-->
+                                    </div>
+                                    <!--end::Info-->
+                                    <!--begin::Action-->
+                                    <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">View</a>
+                                    <!--end::Action-->
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="menu-item px-2">
+                                    <table>
+                                        <tr>
+                                            <td><a href="/edit_student/{{ student.admin.id }}"
+                                                    class="btn btn-success">Modifier</a></td>
+                                        </tr>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
