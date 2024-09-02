@@ -5,7 +5,7 @@ from django.contrib.auth import logout,login
 # Create your views here.
 
 def signin(request):
-    login(request)
+    # login(request)
     return render(request,"account/signin.html" )
 
 def register(request):

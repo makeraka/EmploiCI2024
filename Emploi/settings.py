@@ -76,12 +76,24 @@ WSGI_APPLICATION = 'Emploi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # Utilise le backend MySQL
+        'NAME': 'Emploi_db',  # Remplacez par le nom de votre base de données
+        'USER': 'root',  # Remplacez par votre nom d'utilisateur MySQL
+        'PASSWORD': '',  # Remplacez par votre mot de passe MySQL
+        'HOST': 'localhost',  # Ou l'adresse IP de votre serveur MySQL
+        'PORT': '3306',  # Port MySQL par défaut
     }
 }
+
 
 
 # Password validation
