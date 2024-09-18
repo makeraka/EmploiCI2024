@@ -6,7 +6,7 @@ User = get_user_model()
 
 # Class Utilisateur Etudiant  personnalisé
 
-
+# 
 class Etudiant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey('EmploiApp.Group', on_delete=models.CASCADE)
@@ -21,12 +21,12 @@ class Etudiant(models.Model):
     class Meta:
         verbose_name= 'Etudiant'
         
-
+# Model professeur personnalisé
 class Teacher(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     telephone = models.CharField(max_length=100)
     def __str__(self): 
-        return self.username
+        return self.user.username
     
     class Meta:
         verbose_name= 'Teacher'

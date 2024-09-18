@@ -13,21 +13,23 @@ class Department(models.Model):
         return self.label
 
 
-class Group(models.Model):
-    number = models.IntegerField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    deleted = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'{self.number}-{self.department.label}'
-
-
 class Semestre(models.Model):
     number = models.IntegerField()
     deleted = models.BooleanField(default=False)
     def __str__(self):
         return f'{self.number}'
     
+
+class Group(models.Model):
+    number = models.IntegerField()
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE)
+    
+    deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.number}-{self.department.label}-S{self.semestre.number}'
+
 
 
 

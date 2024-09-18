@@ -17,6 +17,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     pass
+    list_filter = ['department','semestre','number']
 
 @admin.register(Semestre)
 class SemestreAdmin(admin.ModelAdmin):
