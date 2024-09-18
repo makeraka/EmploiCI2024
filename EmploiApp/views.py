@@ -1,15 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from account.views import signin
+# from account.views import signin
 # Create your views here.
-login_required(login_url=signin)
+
+
+login_required(login_url='account:app_login')
 def home(request):
     
     return render(request,'home.html')
 
 
-def auth(request):
-    return render(request,"auth/auth.html" )
-
-def auth2(request):
-    return render(request,"auth/register.html")

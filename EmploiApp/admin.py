@@ -1,21 +1,19 @@
 from django.contrib import admin
-from .models import (Etudiant, Department,
+from .models import ( Department,
                     Group, Semestre,
-                    Teacher, ProfDispoWeek,
+                    ProfDispoWeek,
                     Course, Classroom,
                     Seance, HourRange,
                     )
 
 # Register your models here.
 
-@admin.register(Etudiant)
-class EtudiantAdmin(admin.ModelAdmin):
-    pass
+
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    pass
-
+    prepopulated_fields = {"slug": ("label",)}
+    
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     pass
@@ -24,9 +22,7 @@ class GroupAdmin(admin.ModelAdmin):
 class SemestreAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(Teacher)
-class TeacherAdmin(admin.ModelAdmin):
-    pass
+
 
 @admin.register(ProfDispoWeek)
 class ProfDispoWeekAdmin(admin.ModelAdmin):

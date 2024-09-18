@@ -66,9 +66,9 @@
                                         <!--end::Avatar-->
                                         <!--begin::Username-->
                                         <div class="d-flex flex-column">
-                                            <div class="fw-bold d-flex align-items-center fs-5">Kamano
-                                            <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Pour nous</span></div>
-                                            <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">max@kt.com</a>
+                                            <div class="fw-bold d-flex align-items-center fs-5">{{user.username}}
+                                            <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Connecté</span></div>
+                                            <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">{{user.last_name}}</a>
                                         </div>
                                         <!--end::Username-->
                                     </div>
@@ -79,7 +79,7 @@
                                 <!--end::Menu separator-->
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-5">
-                                    <a href="../../demo1/dist/account/overview.html" class="menu-link px-5">My Profile</a>
+                                    <a href="../../demo1/dist/account/overview.html" class="menu-link px-5">Mon Profile</a>
                                 </div>
     
                                 
@@ -88,7 +88,7 @@
                                 <div class="separator my-2"></div>
          
                                 <div class="menu-item px-5">
-                                    <a href="../../demo1/dist/authentication/layouts/corporate/sign-in.html" class="menu-link px-5">Sign Out</a>
+                                    <a href="{% url 'account:app_logout' %}" class="menu-link px-5">Déconnexion</a>
                                 </div>
                                 <!--end::Menu item-->
                             </div>
