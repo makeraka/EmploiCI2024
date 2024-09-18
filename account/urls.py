@@ -7,3 +7,4 @@ urlpatterns = [
     # path('reset/', views.reset, name='app_reset'),
     path('logout/', views.logoutView, name='app_logout'),
 ]
+
