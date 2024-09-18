@@ -8,86 +8,16 @@
 <div class="card-body p-9 pt-4">
     <!--begin::Dates-->
     <ul class="nav nav-pills d-flex flex-nowrap hover-scroll-x py-2">
-        <!--begin::Date-->
+        <!-- Itérer sur les jours de la semaine -->
+        {% for day in days_of_week %}
         <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_0">
-                <span class="opacity-50 fs-7 fw-semibold">Su</span>
-                <span class="fs-6 fw-bold">22</span>
+            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary {% if selected_date == day %}active{% endif %}" 
+               data-bs-toggle="tab" href="#kt_schedule_day_{{ forloop.counter0 }}">
+                <span class="opacity-50 fs-7 fw-semibold">{{ day|date:"D" }}</span> <!-- Affiche le jour abrégé (Su, Mo, etc.) -->
+                <span class="fs-6 fw-bold">{{ day|date:"d" }}</span> <!-- Affiche le jour du mois (22, 23, etc.) -->
             </a>
         </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary active" data-bs-toggle="tab" href="#kt_schedule_day_1">
-                <span class="opacity-50 fs-7 fw-semibold">Mo</span>
-                <span class="fs-6 fw-bold">23</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_2">
-                <span class="opacity-50 fs-7 fw-semibold">Tu</span>
-                <span class="fs-6 fw-bold">24</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_3">
-                <span class="opacity-50 fs-7 fw-semibold">We</span>
-                <span class="fs-6 fw-bold">25</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_4">
-                <span class="opacity-50 fs-7 fw-semibold">Th</span>
-                <span class="fs-6 fw-bold">26</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_5">
-                <span class="opacity-50 fs-7 fw-semibold">Fr</span>
-                <span class="fs-6 fw-bold">27</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_6">
-                <span class="opacity-50 fs-7 fw-semibold">Sa</span>
-                <span class="fs-6 fw-bold">28</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_7">
-                <span class="opacity-50 fs-7 fw-semibold">Su</span>
-                <span class="fs-6 fw-bold">29</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_8">
-                <span class="opacity-50 fs-7 fw-semibold">Mo</span>
-                <span class="fs-6 fw-bold">30</span>
-            </a>
-        </li>
-        <!--end::Date-->
-        <!--begin::Date-->
-        <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 btn-active-primary" data-bs-toggle="tab" href="#kt_schedule_day_9">
-                <span class="opacity-50 fs-7 fw-semibold">Tu</span>
-                <span class="fs-6 fw-bold">31</span>
-            </a>
-        </li>
-        <!--end::Date-->
+        {% endfor %}
     </ul>
     <!--end::Dates-->
     <!--begin::Tab Content-->
