@@ -20,7 +20,6 @@ from django.urls import path,include
 urlpatterns = [
     path('',include('EmploiApp.urls')),
     path('auth/',include('account.urls')),
-    path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('admin/', admin.site.urls),
 ]
 

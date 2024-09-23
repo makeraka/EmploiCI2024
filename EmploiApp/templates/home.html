@@ -4,49 +4,84 @@
 {% block content %}
 <!--begin::Card body-->
 <div class="card-body p-9 pt-4">
-<!--begin::Dates-->
-<ul class="nav nav-pills d-flex flex-nowrap hover-scroll-x py-2">
-    {% for day in days_of_week %}
-    <li class="nav-item me-1">
-        <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 {% if selected_date == day %}btn-active-primary active{% else %}btn-light{% endif %}" 
-        href="?date={{ day|date:'Y-m-d' }}">
-            <span class="opacity-50 fs-7 fw-semibold">{{ day|date:"l" }}</span>
-            <span class="fs-6 fw-bold">{{ day|date:"d" }}</span>
-        </a>
-    </li>
-    {% endfor %}
-</ul>
-<!--end::Dates-->
+    <!--begin::Dates-->
+    <ul class="nav nav-pills d-flex flex-nowrap hover-scroll-x py-2">
+        {% for day in days_of_week %}
+        <li class="nav-item me-1">
+            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 {% if selected_date == day %}btn-active-primary active{% else %}btn-light{% endif %}" 
+            href="?date={{ day|date:'Y-m-d' }}">
+                <span class="opacity-50 fs-7 fw-semibold">{{ day|date:"l" }}</span>
+                <span class="fs-6 fw-bold">{{ day|date:"d" }}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <!--end::Dates-->
 
-<!--begin::Tab Content-->
-<div class="tab-content">
-    <div class="tab-pane fade show active">
-        <!-- Itération sur les séances du jour sélectionné -->
-        {% for seance in seances %}
+    <!--begin::Tab Content-->
+
+    {% if user.is_authenticated %}
+        {% if user.etudiant_set.exists %}
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+                <!-- Itération sur les séances du jour sélectionné -->
+                {% for seance in seances %}
+                <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
+                    <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
+                    <div class="fw-semibold ms-5 text-gray-600">
+                        <div class="fs-1 text-primary">{{ seance.profDispoWeek.hourRange.start_time|date:"H:i" }} - {{ seance.profDispoWeek.hourRange.end_time|date:"H:i" }}
+                            <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
+                        </div>
+                        <div class="row">
+                            <p class="fs-2 ">Cours : {{seance.course.label}}</p>
+                        </div>
+                        <div class="row">
+                            <p class="fs-3">Dans : {{seance.classroom.label}}</p>
+                        </div>
+                        <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
+                        <div class="text-gray-500">Animé par
+                            <a href="#">{{ seance.course.Teacher.user.first_name }}</a>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+                </div>
+                {% empty %}
+                <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% elif user.teacher_set.exists %}
+        {% for seance in seances_teacher %}
         <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
             <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
             <div class="fw-semibold ms-5 text-gray-600">
-                <div class="fs-5">{{ seance.profDispoWeek.hourRange.start_time|date:"H:i" }} - {{ seance.profDispoWeek.hourRange.end_time|date:"H:i" }}
+                <div class="fs-1 text-primary">{{ seance.profDispoWeek.hourRange.start_time|date:"H:i" }} - {{ seance.profDispoWeek.hourRange.end_time|date:"H:i" }}
                     <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
                 </div>
                 <div class="row">
-                    <p>Dans : {{seance.classroom.label}}</p>
+                    <p class="fs-2 ">Cours : {{seance.course.label}}</p>
+                </div>
+                <div class="row">
+                    <p class="fs-3">Dans : {{seance.classroom.label}}</p>
                 </div>
                 <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
-                <div class="text-gray-400">Animé par
+                <div class="text-gray-500">Animé par
                     <a href="#">{{ seance.course.Teacher.user.first_name }}</a>
                 </div>
             </div>
             <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
         </div>
         {% empty %}
-        <p class="alert alert-info">Vous n'avez pas cours Ajourd'hui.</p>
+        <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
         {% endfor %}
-    </div>
-</div>
-<!--end::Tab Content-->
+        {% else %}
+            <h3>Aucune condition vérifiée</h3>
+        {% endif %}
+    {% endif %}
 
+    <!--end::Tab Content-->
 </div>
-<!--end::Card body--> 
+<!--end::Card body-->
 
 {% endblock content %}

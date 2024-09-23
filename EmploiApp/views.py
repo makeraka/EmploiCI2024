@@ -1,20 +1,18 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
-from account.models import Etudiant
-from .models import Seance,Course, ProfDispoWeek
+from account.models import Etudiant, Teacher
+from .models import Seance, ProfDispoWeek
 from datetime import datetime, timedelta
-from django.http import JsonResponse
-
-# Create your views here.
 
 @login_required(login_url='account:app_login')
 def home(request):
+
+    context = {}
     # Récupérer la date actuelle
     current_date = datetime.now().date()
     current_day_of_week = current_date.weekday()  # 0 = Lundi, 6 = Dimanche
 
-    # calcule des dates des 7 jours de la semaine
+    # Calcul des dates des 7 jours de la semaine
     start_of_week = current_date - timedelta(days=current_day_of_week)
     days_of_week = [start_of_week + timedelta(days=i) for i in range(7)]
 
@@ -22,7 +20,6 @@ def home(request):
     selected_date_str = request.GET.get('date', current_date)
 
     # Si la date est une chaîne de caractères, la convertir en date
-    #cette conversion c'est pour pouvoir garder le focuce active sur la date selectionnée dans le template (tout ça pour eviter au max le javascrip)
     if isinstance(selected_date_str, str):
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
     else:
@@ -31,27 +28,34 @@ def home(request):
     # Déterminer le jour de la semaine pour la date sélectionnée
     selected_day_of_week = selected_date.weekday()
 
-    # Récupérer le groupe de l'étudiant authentifié
-    try:
+    # Vérifier si l'utilisateur est un étudiant
+    if Etudiant.objects.filter(user=request.user).exists():
+        # Récupérer l'étudiant et son groupe
         student = Etudiant.objects.get(user=request.user)
         student_group = student.group
-    except Etudiant.DoesNotExist:
-        return render(request, 'error.html', {'message': "Vous devez être un étudiant pour voir cet emploi du temps."})
 
-    # Récupérer les séances pour le jour sélectionné et le groupe de l'étudiant
-    seances = Seance.objects.filter(
-        group=student_group,
-        profDispoWeek__hourRange__day_week=selected_day_of_week
-    )
+        # Récupérer les séances pour le groupe de l'étudiant et le jour sélectionné
+        seances = Seance.objects.filter(
+            group=student_group,
+            profDispoWeek__hourRange__day_week=selected_day_of_week
+        )
+        context['seances'] = seances
 
-    context = {
-        'days_of_week': days_of_week,
-        'seances': seances,
-        'selected_date': selected_date,
-    }
+    elif Teacher.objects.filter(user=request.user).exists():
+        # Récupérer le professeur connecté
+        teacher = Teacher.objects.get(user=request.user)
+
+        # Récupérer les séances du professeur pour le jour sélectionné
+        seances_teacher = Seance.objects.filter(
+            profDispoWeek__teacher=teacher,
+            profDispoWeek__hourRange__day_week=selected_day_of_week
+        )
+        context['seances_teacher'] = seances_teacher
+
+    context['days_of_week'] = days_of_week
+    context['selected_date'] = selected_date
+
     return render(request, 'home.html', context)
-
-
 
 
 

@@ -44,7 +44,7 @@ class ClassroomAdmin(admin.ModelAdmin):
 class SeanceAdmin(admin.ModelAdmin):
     form = SeanceForm
     list_display = ['group', 'course', 'classroom', 'profDispoWeek']
-    list_filter = ['group', 'course', 'classroom', 'profDispoWeek__hourRange__day_week']
+    list_filter = ['group', 'course', 'classroom', 'profDispoWeek__hourRange__day_week','profDispoWeek__teacher']
    
     class Media:
         js = ('assets/js/seance_form.js',)

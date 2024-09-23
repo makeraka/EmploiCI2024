@@ -27,7 +27,7 @@ def register(request):
 
             try:
                 # Vérification de l'existence de l'étudiant
-                etudiant = A_model.Etudiant.objects.get(group__department=department, pv=pv) 
+                etudiant = A_model.Etudiant.objects.get(group__licence__department=department, pv=pv) 
                 check = False
                 context['username'] = etudiant.user.username
             except A_model.Etudiant.DoesNotExist:
@@ -84,12 +84,15 @@ def loginView(request):
         try:
             user = authenticate(username=matricule, password=password)
             if user:
+                print("j'ai capturé l'utilisateur",user)
                 login(request,user)
+                print("j'ai loger le l'utilisateur")
+                return redirect('emploi:app_home')
                 #redirection selon le type de user
-                if user.etudiant:
-                    return redirect('emploi:app_home')
-                elif user.teacher:
-                    return redirect('emploi:app_homeprof')  # pas totalement gérée, je dois y revenir pour achever
+                # if user.etudiant:
+                #     return redirect('emploi:app_home')
+                # elif user.teacher:
+                #     return redirect('emploi:app_homeprof')  # pas totalement gérée, je dois y revenir pour achever
         except:
             messages.error(request,'Erreur de Connexion')
         
