@@ -22,16 +22,15 @@
                     {% if messages %}
                     <div class="messages">
                         {% for message in messages %}
-                            {% if message.tags=="error" %}
-                            <p class="alert alert-danger text-center">{{ message }}</p>
-                            
+                            {% if "error" in message.tags %}
+                                <p class="alert alert-danger text-center">{{ message }}</p>
                             {% else %}
-                                <p class="alert alert-{{message.tags}} text-center">{{ message }}</p>
+                                <p class="alert alert-{{ message.tags }} text-center">{{ message }}</p>
                             {% endif %}
-                         
                         {% endfor %}
                     </div>
-                    {% endif %}
+                {% endif %}
+                
                             {% if check %}
                                 
                           

@@ -10,9 +10,9 @@ User = get_user_model()
 class Etudiant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey('EmploiApp.Group', on_delete=models.CASCADE)
-    semestre = models.ForeignKey('EmploiApp.Semestre', on_delete=models.CASCADE)
     pv = models.CharField(max_length = 150)
 
+ 
     
 
     def __str__(self):

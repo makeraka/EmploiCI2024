@@ -13,6 +13,7 @@ import re
 
 def register(request):
     # check est un booléen qui permet de contrôler quel formulaire afficher
+    # parce qu'il y'a deux formulais html à soumettre dans le templates et les deux jouent chacun un role
     check = True
     context = {}
     departements = E_model.Department.objects.all()
@@ -32,6 +33,7 @@ def register(request):
             except A_model.Etudiant.DoesNotExist:
                 # Message d'erreur si l'étudiant n'est pas trouvé
                 messages.add_message(request, messages.ERROR, 'Ces informations ne correspondent à aucun étudiant')
+        
         # Le deuxième formulaire est soumis
         else:
             check = False  # en cas de non redirection, il faut retourner au formulaire 2
@@ -53,6 +55,7 @@ def register(request):
                 try:
                     user = User.objects.get(username=username)
                     user.set_password(password1)
+                    user.is_active = True
                     user.save()
                     messages.add_message(request, messages.SUCCESS, 'Mot de passe modifié avec succès. Vous pouvez maintenant vous connecter.')
                     return redirect('account:app_login')
@@ -82,7 +85,11 @@ def loginView(request):
             user = authenticate(username=matricule, password=password)
             if user:
                 login(request,user)
-                return redirect('emploi:app_home')
+                #redirection selon le type de user
+                if user.etudiant:
+                    return redirect('emploi:app_home')
+                elif user.teacher:
+                    return redirect('emploi:app_homeprof')  # pas totalement gérée, je dois y revenir pour achever
         except:
             messages.error(request,'Erreur de Connexion')
         
