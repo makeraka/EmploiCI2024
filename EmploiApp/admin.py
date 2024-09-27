@@ -5,7 +5,7 @@ from .models import ( Department,
                     Group, Licence, Semestre,
                     ProfDispoWeek,
                     Course, Classroom,
-                    Seance, HourRange,
+                    Seance
                     )
 
 # Register your models here.
@@ -29,9 +29,9 @@ class SemestreAdmin(admin.ModelAdmin):
 
 @admin.register(ProfDispoWeek)
 class ProfDispoWeekAdmin(admin.ModelAdmin):
-    list_display = ['teacher','hourRange','busy']
-    list_filter = ['teacher','hourRange','busy']
-
+    # list_display = ['teacher','day_week''busy', 'h_start', 'h_end']
+    # list_filter = ['teacher','day_week''busy', 'h_start', 'h_end']
+    pass
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     pass
@@ -39,16 +39,14 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
     pass
-
 @admin.register(Seance)
 class SeanceAdmin(admin.ModelAdmin):
     form = SeanceForm
-    list_display = ['group', 'course', 'classroom', 'profDispoWeek']
-    list_filter = ['group', 'course', 'classroom', 'profDispoWeek__hourRange__day_week','profDispoWeek__teacher']
-   
+    list_display = ['course', 'day_week', 'classroom', 'profDispoWeek']  # Ajout de day_week
+    list_filter = ['course', 'classroom', 'profDispoWeek__day_week', 'profDispoWeek__teacher', 'day_week']  # Ajout de day_week
+    
     class Media:
         js = ('assets/js/seance_form.js',)
-    
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -58,11 +56,15 @@ class SeanceAdmin(admin.ModelAdmin):
             form.base_fields['profDispoWeek'].queryset = ProfDispoWeek.available.all()  # Utiliser le manager personnalisé
         return form
 
+    def save_model(self, request, obj, form, change):
+        # Enregistrer d'abord l'objet pour obtenir un ID
+        super().save_model(request, obj, form, change)
+        
+        # Maintenant que l'objet est sauvegardé, vous pouvez gérer le champ ManyToMany
+        # Vérifiez si des groupes ont été sélectionnés dans le formulaire
+        if form.cleaned_data.get('group'):
+            obj.group.set(form.cleaned_data['group'])
 
-
-@admin.register(HourRange)
-class HourRangeAdmin(admin.ModelAdmin):
-    list_filter  = ['day_week','start_time','end_time']
     
 @admin.register(Licence)
 class LicenceAdmin(admin.ModelAdmin):

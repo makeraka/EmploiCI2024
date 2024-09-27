@@ -1,7 +1,8 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from account.models import Etudiant, Teacher
-from .models import Seance, ProfDispoWeek
+from .models import Course, Seance, ProfDispoWeek
 from datetime import datetime, timedelta
 
 @login_required(login_url='account:app_login')
@@ -61,13 +62,22 @@ def home(request):
 
 def get_prof_dispo(request):
     course_id = request.GET.get('course_id')
+    data = []  # Initialiser une liste vide pour les données
+
     try:
         course = Course.objects.get(id=course_id)
+        # Récupérer les disponibilités du professeur pour le cours
         prof_dispos = ProfDispoWeek.objects.filter(teacher=course.Teacher)
-        data = [{'id': dispo.id, 'text': str(dispo.hourRange)} for dispo in prof_dispos]
+
+        # Construire les données avec les informations de disponibilité
+        data = [{
+            'id': dispo.id,
+            'text': f"{dispo.get_day_week_display()} de {dispo.start_time} à {dispo.end_time}"
+        } for dispo in prof_dispos]
+
     except Course.DoesNotExist:
-        data = []
+        # Si le cours n'existe pas, data reste vide
+        pass
 
     return JsonResponse(data, safe=False)
-
 

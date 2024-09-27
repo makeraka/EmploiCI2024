@@ -11,3 +11,5 @@ class SeanceForm(forms.ModelForm):
         if not profDispoWeek:
             raise forms.ValidationError("Le champ 'Disponibilité du prof' est requis.")
         return profDispoWeek
+    
+

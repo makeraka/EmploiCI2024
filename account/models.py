@@ -20,6 +20,11 @@ class Etudiant(models.Model):
 
     class Meta:
         verbose_name= 'Etudiant'
+
+
+    
+
+
         
 # Model professeur personnalisé
 class Teacher(models.Model):
