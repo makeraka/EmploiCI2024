@@ -1,9 +1,14 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from account.models import Etudiant, Teacher
 from .models import Course, Seance, ProfDispoWeek
 from datetime import datetime, timedelta
+from django.core.paginator import Paginator
+from .forms import Dispoform
+from django.contrib import messages
+from django.views.generic import UpdateView,DeleteView
+from django.urls import reverse_lazy
 
 @login_required(login_url='account:app_login')
 def home(request):
@@ -38,7 +43,7 @@ def home(request):
         # Récupérer les séances pour le groupe de l'étudiant et le jour sélectionné
         seances = Seance.objects.filter(
             group=student_group,
-            profDispoWeek__hourRange__day_week=selected_day_of_week
+            profDispoWeek__day_week=selected_day_of_week
         )
         context['seances'] = seances
 
@@ -49,7 +54,7 @@ def home(request):
         # Récupérer les séances du professeur pour le jour sélectionné
         seances_teacher = Seance.objects.filter(
             profDispoWeek__teacher=teacher,
-            profDispoWeek__hourRange__day_week=selected_day_of_week
+            profDispoWeek__day_week=selected_day_of_week
         )
         context['seances_teacher'] = seances_teacher
 
@@ -81,3 +86,50 @@ def get_prof_dispo(request):
 
     return JsonResponse(data, safe=False)
 
+
+
+
+
+#*********************vue pour la disponibilité des professeurs *********************
+
+@login_required(login_url="account:app_login")
+def dispo(request):
+    # Récupérer toutes les disponibilités actuelles et trier par jour de la semaine
+    user = request.user
+    owner = None
+    try:
+            owner = Teacher.objects.get(user = user)
+    except:
+        return redirect('account:app_logout')
+    
+ 
+
+    if request.method == "POST":
+        form = Dispoform(request.POST)
+        if form.is_valid():
+            dispo = form.save(commit=False)   
+            dispo.teacher = owner
+            dispo.save()
+            messages.success(request,"Disponibilité ajoutée avec succès")
+        else: 
+            messages.error(request,'Vous avez commit une erreur dans la saisie, veuillez reessayer')
+    
+    form  = Dispoform()
+    dispo_list = ProfDispoWeek.objects.filter(teacher = owner).order_by('day_week')
+
+    # Pagination
+    paginator = Paginator(dispo_list, 8)  # Afficher 8 disponibilités par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "dispos": page_obj,
+        'form':form
+
+    }
+    # Rendre le template avec les données contextuelles
+    return render(request, "teacher/dispo.html", context)
+
+
+def editDispo(request):
+    print('je suis rentré')

@@ -80,6 +80,9 @@ class Classroom(models.Model):
         return self.label
 
 
+    def check_busy(self):
+        #vérifie si une seance est actuellement dans cette classe pour mettre le busy à false ou true
+        pass
 
 
 # class HourRange(models.Model):
@@ -103,10 +106,6 @@ class Classroom(models.Model):
     
 
 
-from django.db import models
-from .custom_manager import ProfDispoWeekManagerActivation  
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 
 class ProfDispoWeek(models.Model):
     DAYS_OF_WEEK = [
@@ -122,7 +121,7 @@ class ProfDispoWeek(models.Model):
     day_week = models.IntegerField(choices=DAYS_OF_WEEK)
     start_time = models.TimeField(auto_now=False, auto_now_add=False)
     end_time = models.TimeField(auto_now=False, auto_now_add=False)
-    busy = models.BooleanField(default=False)
+    busy = models.BooleanField(default=False) #vérifie si la disponibilité est affecté ou pas
 
     def __str__(self):
         return f'{self.teacher} - {self.get_day_week_display()} de {self.start_time} à {self.end_time}'
@@ -151,6 +150,20 @@ class Seance(models.Model):
     h_end = models.TimeField(auto_now=False, auto_now_add=False)
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     profDispoWeek = models.ForeignKey(ProfDispoWeek, on_delete=models.CASCADE, verbose_name="Disponibilité du prof")
+
+def save(self, *args, **kwargs):
+    # Étape 1 : Enregistrer l'instance sans assigner les groupes
+    if not self.pk:  # Si l'objet n'a pas encore d'ID
+        super(Seance, self).save(*args, **kwargs)
+
+    # Étape 2 : Assigner les groupes, maintenant que l'ID est disponible
+    if 'groups' in kwargs:
+        groups = kwargs.pop('groups')
+        self.group.set(groups)
+
+    # Étape 3 : Enregistrer à nouveau l'instance pour s'assurer que tous les changements sont sauvegardés
+    super(Seance, self).save(*args, **kwargs)
+
 
     def clean(self):
         # Vérifier si la disponibilité du professeur est fournie

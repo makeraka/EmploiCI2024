@@ -42,10 +42,14 @@
                         
                           
                                 
-                                <span class="menu-link">
+                                {% comment %} <span class="menu-link">
                                     <span class="menu-title">Ma disponibilité</span>
                                     <span class="menu-arrow d-lg-none"></span>
-                                </span>
+                                </span> {% endcomment %}
+
+                                <div class="menu-item px-5">
+                                    <a href="{% url 'emploi:dispo' %}" class="menu-link px-5">Mes Disponibilité</a>
+                                </div>
                             </div>
                             {% endif %}
                             {% endif %}

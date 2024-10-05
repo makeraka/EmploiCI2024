@@ -1,0 +1,46 @@
+<!--begin::Modal-->
+<div class="modal fade" id="kt_modal_invite_friends" tabindex="-1" aria-hidden="true">
+	<!--begin::Modal dialog-->
+	<div class="modal-dialog mw-850px">
+		<!--begin::Modal content-->
+		<div class="modal-content">
+			<!--begin::Modal header-->
+			<div class="text-center mb-13">
+				<!--begin::Title-->
+				<h1 class="mb-3">Ajouter une disponibilité</h1>
+				<!--end::Title-->
+				<!--begin::Description-->
+				<div class="text-muted fw-semibold fs-5">Veillez renseigner vos disponibilité du semestre
+
+				</div>
+				<!--end::Description-->
+			</div>
+			<!--end::Heading-->
+
+			<!--begin::Modal header-->
+			<!--begin::Modal body-->
+			<div class="modal-body scroll-y mx-5 mx-xl-18 pt-0 pb-15">
+				<!--begin::Heading-->
+
+				<form role="form"  method="post">
+					{% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">  <!-- Ajout d'une marge en bas -->
+                        {{ field.label_tag }}  <!-- Afficher le label du champ -->
+                        {{ field }}  <!-- Afficher le champ -->
+                        {% if field.errors %}
+                            <small class="text-danger">{{ field.errors|join:', ' }}</small>  <!-- Afficher les erreurs sous forme de liste -->
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+				</form>
+
+			</div>
+			<!--end::Modal body-->
+		</div>
+		<!--end::Modal content-->
+	</div>
+	<!--end::Modal dialog-->
+</div>

@@ -1,0 +1,34 @@
+<!--MODAL DE MODIFICATION-->
+<div class="modal fade" id="editDispoModal" tabindex="-1" aria-labelledby="editDispoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDispoModalLabel">Modifier la disponibilité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editDispoForm" >
+                    {% csrf_token %}
+                    <input type="hidden" id="dispo-id">
+                    <div class="mb-3">
+                        <label for="day-week" class="form-label">Jour de la semaine</label>
+                        <select id="day-week" class="form-control" name="day_week">
+                            {% for key, value in form.fields.day_week.choices %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start-time" class="form-label">Heure de début</label>
+                        <input type="time" id="start-time" class="form-control" name="start_time">
+                    </div>
+                    <div class="mb-3">
+                        <label for="end-time" class="form-label">Heure de fin</label>
+                        <input type="time" id="end-time" class="form-control" name="end_time">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
