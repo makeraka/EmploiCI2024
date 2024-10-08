@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractBaseUser, AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, AbstractUser, User
 
 User = get_user_model()
 # Create your models here.
@@ -19,8 +19,6 @@ class Etudiant(models.Model):
         verbose_name= 'Etudiant'
 
 
-    
-
 
         
 # Model professeur personnalisé
@@ -28,7 +26,7 @@ class Teacher(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     telephone = models.CharField(max_length=100)
     def __str__(self): 
-        return self.user.username
+        return f'{self.user.first_name} {self.user.last_name}'
     
     class Meta:
         verbose_name= 'Teacher'

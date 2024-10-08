@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from account.models import Etudiant, Teacher
 from .models import Course, Seance, ProfDispoWeek
@@ -9,12 +9,15 @@ from .forms import Dispoform
 from django.contrib import messages
 from django.views.generic import UpdateView,DeleteView
 from django.urls import reverse_lazy
+from django.http import HttpResponse
+from django.db.models import Q
+from datetime import datetime, timedelta
 
 @login_required(login_url='account:app_login')
+@login_required(login_url='account:app_login')
 def home(request):
-
     context = {}
-    # Récupérer la date actuelle
+    # Récupératon de la date actuelle
     current_date = datetime.now().date()
     current_day_of_week = current_date.weekday()  # 0 = Lundi, 6 = Dimanche
 
@@ -22,7 +25,7 @@ def home(request):
     start_of_week = current_date - timedelta(days=current_day_of_week)
     days_of_week = [start_of_week + timedelta(days=i) for i in range(7)]
 
-    # Récupérer la date sélectionnée
+    # Récupération de la date sélectionnée
     selected_date_str = request.GET.get('date', current_date)
 
     # Si la date est une chaîne de caractères, la convertir en date
@@ -33,6 +36,10 @@ def home(request):
 
     # Déterminer le jour de la semaine pour la date sélectionnée
     selected_day_of_week = selected_date.weekday()
+
+    # Trouver la séance actuelle (pour pouvoir la signalé comme en cours)
+    now = datetime.now().time()  # Heure actuelle
+    current_seance = None
 
     # Vérifier si l'utilisateur est un étudiant
     if Etudiant.objects.filter(user=request.user).exists():
@@ -45,6 +52,15 @@ def home(request):
             group=student_group,
             profDispoWeek__day_week=selected_day_of_week
         )
+
+        # Trouver la séance actuelle
+        current_seance = Seance.objects.filter(
+            group=student_group,
+            profDispoWeek__day_week=selected_day_of_week,
+            profDispoWeek__start_time__lte=now,
+            profDispoWeek__end_time__gte=now
+        ).first()
+
         context['seances'] = seances
 
     elif Teacher.objects.filter(user=request.user).exists():
@@ -56,13 +72,22 @@ def home(request):
             profDispoWeek__teacher=teacher,
             profDispoWeek__day_week=selected_day_of_week
         )
+
+        # Trouver la séance actuelle
+        current_seance = Seance.objects.filter(
+            profDispoWeek__teacher=teacher,
+            profDispoWeek__day_week=selected_day_of_week,
+            profDispoWeek__start_time__lte=now,
+            profDispoWeek__end_time__gte=now
+        ).first()
+
         context['seances_teacher'] = seances_teacher
 
     context['days_of_week'] = days_of_week
     context['selected_date'] = selected_date
+    context['current_seance'] = current_seance  # Ajoutez ceci au contexte
 
     return render(request, 'home.html', context)
-
 
 
 def get_prof_dispo(request):
@@ -72,7 +97,7 @@ def get_prof_dispo(request):
     try:
         course = Course.objects.get(id=course_id)
         # Récupérer les disponibilités du professeur pour le cours
-        prof_dispos = ProfDispoWeek.objects.filter(teacher=course.Teacher)
+        prof_dispos = ProfDispoWeek.objects.filter(teacher=course.teacher)
 
         # Construire les données avec les informations de disponibilité
         data = [{
@@ -91,45 +116,101 @@ def get_prof_dispo(request):
 
 
 #*********************vue pour la disponibilité des professeurs *********************
-
 @login_required(login_url="account:app_login")
 def dispo(request):
-    # Récupérer toutes les disponibilités actuelles et trier par jour de la semaine
     user = request.user
-    owner = None
     try:
-            owner = Teacher.objects.get(user = user)
-    except:
+        owner = Teacher.objects.get(user=user)
+    except Teacher.DoesNotExist:
         return redirect('account:app_logout')
-    
- 
 
     if request.method == "POST":
         form = Dispoform(request.POST)
         if form.is_valid():
-            dispo = form.save(commit=False)   
+            dispo = form.save(commit=False)
             dispo.teacher = owner
-            dispo.save()
-            messages.success(request,"Disponibilité ajoutée avec succès")
-        else: 
-            messages.error(request,'Vous avez commit une erreur dans la saisie, veuillez reessayer')
-    
-    form  = Dispoform()
-    dispo_list = ProfDispoWeek.objects.filter(teacher = owner).order_by('day_week')
+            dispo.save()  # Sauvegarde de la disponibilité
+
+            # Mettre à jour les intervalles de disponibilité
+            dispo.update_intervals(dispo.start_time, dispo.end_time)
+
+            messages.success(request, "Disponibilité ajoutée avec succès")
+
+        else:
+            messages.error(request, 'Vous avez commis une erreur dans la saisie, veuillez réessayer')
+            for field in form:
+                for error in field.errors:
+                    messages.error(request, error)
+    search_day = request.GET.get('search_day')
+    dispo_list = ProfDispoWeek.objects.filter(teacher=owner).order_by('day_week', 'start_time')
+
+    if search_day is not None and search_day != '':
+        dispo_list = dispo_list.filter(day_week=int(search_day))
 
     # Pagination
-    paginator = Paginator(dispo_list, 8)  # Afficher 8 disponibilités par page
+    paginator = Paginator(dispo_list, 8)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    for dispo in page_obj:
+        print("Occupied intervals:", dispo.occupied_intervals)  # Ajoutez ceci avant de retourner le contexte
+
     context = {
         "dispos": page_obj,
-        'form':form
-
+        'form': Dispoform(),
     }
-    # Rendre le template avec les données contextuelles
+
     return render(request, "teacher/dispo.html", context)
 
-
+@login_required(login_url="account:app_login")
 def editDispo(request):
-    print('je suis rentré')
+    if request.method == "POST":
+        dispo_id = request.POST.get('dispo_id')
+        day_week = request.POST.get('day_week')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        # Vérifiez si dispo_id est fourni et est un entier
+        if dispo_id:
+            try:
+                dispo_id = int(dispo_id)
+                # Essayez de récupérer l'instance existante
+                instance = ProfDispoWeek.objects.get(id=dispo_id)
+                
+                # Mettez à jour les champs de l'instance
+                instance.day_week = day_week
+                instance.start_time = start_time
+                instance.end_time = end_time
+                instance.save()
+
+                messages.success(request, 'Disponibilité modifiée avec succès')
+            except ProfDispoWeek.DoesNotExist:
+                messages.error(request, 'La disponibilité spécifiée n\'existe pas.')
+            except ValueError:
+                messages.error(request, 'ID de disponibilité invalide.')
+            except Exception as e:
+                messages.error(request, f'Erreur : {str(e)}')
+
+       
+
+    return redirect('emploi:dispo')  # Redirection en cas de requête GET ou d'erreur
+
+
+@login_required(login_url="account:app_login")
+def delete_dispo(request):
+    # Récupérer l'ID de la disponibilité à supprimer depuis la requête POST
+    dispo_id = request.POST.get('dispo-id')
+    # Vérifier si la disponibilité existe
+    dispo = get_object_or_404(ProfDispoWeek, pk=dispo_id)
+    #vérification si la disponibilité est déja assigné
+    try:
+        # Supprimer la disponibilité
+        dispo.delete()
+        # Ajouter un message de succès
+        messages.success(request, 'La disponibilité a été supprimée avec succès.')
+    except Exception as e:
+        # Ajouter un message d'erreur en cas de problème
+        messages.error(request, f'Erreur lors de la suppression de la disponibilité : {str(e)}')
+
+    # Rediriger vers la page de liste des disponibilités
+    return redirect('emploi:dispo') 

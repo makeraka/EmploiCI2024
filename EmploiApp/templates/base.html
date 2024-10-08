@@ -15,48 +15,57 @@
 </head>
 
 <body>
-    {# <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-theme-mode")) { themeMode = document.documentElement.getAttribute("data-theme-mode"); } else { if (localStorage.getItem("data-theme") !== null) { themeMode = localStorage.getItem("data-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-theme", themeMode); }</script> #}
+    <!-- {# <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-theme-mode")) { themeMode = document.documentElement.getAttribute("data-theme-mode"); } else { if (localStorage.getItem("data-theme") !== null) { themeMode = localStorage.getItem("data-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-theme", themeMode); }</script> #} -->
     <!-- bar de navigation-->
-    {% block navbar %}
-            {% include "_partials/navbar.html" %}
-    {% endblock navbar %}
+     
+    <div class="container">
+            {% block navbar %}
+                    {% include "_partials/navbar.html" %}
+            {% endblock navbar %}
+            {% block carousel %}
+                    {% include "_partials/carousel.html" %}
+            
+            {% endblock carousel %}
+            {% block head_page %}
 
-    <!-- contenu de la page-->
+            {% endblock head_page %}
+            <!-- contenu de la page-->
 
-        {% block content %}
+            {% block content %}
 
-        {% endblock content %} 
-
-
-    <!-- pied de page -->
-    {% block footer %}
-
-    {% endblock footer %}
+            {% endblock content %} 
 
 
-    <!--lien javascipt-->
-    {% block script_link %}
-    <!--begin::Javascript-->
-    <script>var hostUrl = "assets/";</script>
-    <!--begin::Global Javascript Bundle(mandatory for all pages)-->
-    <script src="{% static 'assets/plugins/global/plugins.bundle.js' %}"></script>
-    <script src="{% static 'assets/js/scripts.bundle.js' %}"></script>
-    <!--end::Global Javascript Bundle-->
-    <!--begin::Vendors Javascript(used for this page only)-->
-    <script src="{% static 'assets/plugins/custom/datatables/datatables.bundle.js' %}"></script>
-    <!--end::Vendors Javascript-->
-    <!--begin::Custom Javascript(used for this page only)-->
-    <script src="{% static 'assets/js/custom/apps/projects/project/project.js' %}"></script>
-    <script src="{% static 'assets/js/widgets.bundle.js' %}"></script>
-    <script src="{% static 'assets/js/custom/widgets.js' %}"></script>
-    <script src="{% static 'assets/js/custom/apps/chat/chat.js' %}"></script>
-    <script src="{% static 'assets/js/custom/utilities/modals/upgrade-plan.js' %}"></script>
-    <script src="{% static 'assets/js/custom/utilities/modals/create-app.js' %}"></script>
-    <script src="{% static 'assets/js/custom/utilities/modals/users-search.js' %}"></script>
-    <script src="{% static 'assets/js/custom/utilities/modals/new-target.js' %}"></script>
-    <!--end::Custom Javascript-->
-    <!--end::Javascript-->
-    {% endblock script_link %}
+            <!-- pied de page -->
+            {% block footer %}
+
+            {% endblock footer %}
+
+
+            <!--lien javascipt-->
+            {% block script_link %}
+            <!--begin::Javascript-->
+            <script>var hostUrl = "assets/";</script>
+            <!--begin::Global Javascript Bundle(mandatory for all pages)-->
+            <script src="{% static 'assets/plugins/global/plugins.bundle.js' %}"></script>
+            <script src="{% static 'assets/js/scripts.bundle.js' %}"></script>
+            <!--end::Global Javascript Bundle-->
+            <!--begin::Vendors Javascript(used for this page only)-->
+            <script src="{% static 'assets/plugins/custom/datatables/datatables.bundle.js' %}"></script>
+            <!--end::Vendors Javascript-->
+            <!--begin::Custom Javascript(used for this page only)-->
+            <script src="{% static 'assets/js/custom/apps/projects/project/project.js' %}"></script>
+            <script src="{% static 'assets/js/widgets.bundle.js' %}"></script>
+            <script src="{% static 'assets/js/custom/widgets.js' %}"></script>
+            <script src="{% static 'assets/js/custom/apps/chat/chat.js' %}"></script>
+            <script src="{% static 'assets/js/custom/utilities/modals/upgrade-plan.js' %}"></script>
+            <script src="{% static 'assets/js/custom/utilities/modals/create-app.js' %}"></script>
+            <script src="{% static 'assets/js/custom/utilities/modals/users-search.js' %}"></script>
+            <script src="{% static 'assets/js/custom/utilities/modals/new-target.js' %}"></script>
+            <!--end::Custom Javascript-->
+            <!--end::Javascript-->
+            {% endblock script_link %}
+        </div>
 </body>
 
 </html>

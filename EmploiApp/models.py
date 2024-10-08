@@ -63,7 +63,7 @@ class Course(models.Model):
   
     label = models.CharField(max_length=50)
     semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE)
-    Teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)
+    teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -119,19 +119,49 @@ class ProfDispoWeek(models.Model):
     ]
     teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)
     day_week = models.IntegerField(choices=DAYS_OF_WEEK)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False)
-    busy = models.BooleanField(default=False) #vérifie si la disponibilité est affecté ou pas
-
-    def __str__(self):
-        return f'{self.teacher} - {self.get_day_week_display()} de {self.start_time} à {self.end_time}'
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    busy = models.BooleanField(default=False)  # Vérifie si la disponibilité est affectée ou pas
+    occupied_intervals = models.JSONField(default=list, blank=True,null=True)  # Stocker les intervalles occupés
     
-    class Meta:
-        ordering = ['day_week']
-    objects = models.Manager()  # Manager par défaut
-    available = ProfDispoWeekManagerActivation()  # Manager personnalisé pour les éléments non occupés
+    def update_intervals(self, new_start=None, new_end=None):
+        if new_start is not None and new_end is not None:
+            # Convertir les objets time en chaînes
+            new_interval = [new_start.strftime('%H:%M:%S'), new_end.strftime('%H:%M:%S')]
+            self.occupied_intervals.append(new_interval)
+
+        # Déterminer si la disponibilité est totalement occupée
+        total_interval = [self.start_time.strftime('%H:%M:%S'), self.end_time.strftime('%H:%M:%S')]
+        occupied = sorted(self.occupied_intervals, key=lambda x: x[0])
+
+        # Vérifier si la liste occupied n'est pas vide avant d'accéder à son premier élément
+        if not occupied:
+            self.busy = False  # Pas d'intervalle occupé
+            return
+
+        merged_intervals = [occupied[0]]
+        for current in occupied[1:]:
+            last = merged_intervals[-1]
+            if current[0] <= last[1]:  # Si les intervalles se chevauchent ou se touchent
+                last[1] = max(last[1], current[1])
+            else:
+                merged_intervals.append(current)
+
+        # Mettre à jour les intervalles fusionnés et vérifier si tout est occupé
+        self.occupied_intervals = merged_intervals
+        if len(merged_intervals) == 1 and merged_intervals[0] == total_interval:
+            self.busy = True
+        else:
+            self.busy = len(self.occupied_intervals) > 0
+
+
+        def __str__(self):
+            day_name = dict(self.DAYS_OF_WEEK).get(self.day_week, "Jour inconnu")
+            return f'{day_name} {self.start_time} - {self.end_time}'
 
 # ===================================================================
+from django.utils.translation import gettext_lazy as _
+
 class Seance(models.Model):
     DAYS_OF_WEEK = [
         (0, 'Lundi'),
@@ -142,27 +172,55 @@ class Seance(models.Model):
         (5, 'Samedi'),
         (6, 'Dimanche'),
     ]
-    group = models.ManyToManyField(Group)
-    # group = models.ManyToManyField(Group, on_delete=models.CASCADE)
+    
     course = models.ForeignKey(Course, on_delete=models.CASCADE)    
     day_week = models.IntegerField(choices=DAYS_OF_WEEK)
     h_start = models.TimeField(auto_now=False, auto_now_add=False)
     h_end = models.TimeField(auto_now=False, auto_now_add=False)
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     profDispoWeek = models.ForeignKey(ProfDispoWeek, on_delete=models.CASCADE, verbose_name="Disponibilité du prof")
+    group = models.ManyToManyField(Group)
 
-def save(self, *args, **kwargs):
-    # Étape 1 : Enregistrer l'instance sans assigner les groupes
-    if not self.pk:  # Si l'objet n'a pas encore d'ID
-        super(Seance, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+    # Appeler clean() pour vérifier la validité des données
+        self.clean()
+        
+        # Appeler la méthode save de la classe parente pour sauvegarder la séance
+        super().save(*args, **kwargs)
 
-    # Étape 2 : Assigner les groupes, maintenant que l'ID est disponible
-    if 'groups' in kwargs:
-        groups = kwargs.pop('groups')
-        self.group.set(groups)
+        # Mettre à jour les intervalles dans la disponibilité du professeur
+        self.profDispoWeek.update_intervals(self.h_start, self.h_end)
+        
+        # Marquer la disponibilité du professeur comme occupée
+        self.profDispoWeek.busy = True
+        self.profDispoWeek.save()
 
-    # Étape 3 : Enregistrer à nouveau l'instance pour s'assurer que tous les changements sont sauvegardés
-    super(Seance, self).save(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        # Récupérer la disponibilité du professeur associée
+        prof_dispo = self.profDispoWeek
+        
+        # Supprimer l'intervalle de temps de la liste des intervalles occupés
+        if self.h_start and self.h_end:
+            interval_to_remove = [self.h_start.strftime('%H:%M:%S'), self.h_end.strftime('%H:%M:%S')]
+            if interval_to_remove in prof_dispo.occupied_intervals:
+                prof_dispo.occupied_intervals.remove(interval_to_remove)
+        
+        # Mettre à jour les disponibilités du professeur
+        if prof_dispo.occupied_intervals:
+            # Vérifier s'il reste des intervalles occupés
+            prof_dispo.busy = True
+        else:
+            # Aucune disponibilité occupée, donc remettre busy à False
+            prof_dispo.busy = False
+        
+        # Sauvegarder les modifications
+        prof_dispo.save()
+
+        # Appeler la méthode de suppression de la classe parente
+        super().delete(*args, **kwargs)
+
+    # ... (le reste de votre code ici)
+
 
 
     def clean(self):
@@ -174,76 +232,54 @@ def save(self, *args, **kwargs):
         if self.day_week != self.profDispoWeek.day_week:
             raise ValidationError(_('Le jour de la séance ne correspond pas à la disponibilité du professeur.'))
 
-
-
+        # Vérifier la validité des horaires
         if self.h_start >= self.h_end:
             raise ValidationError(_('Vérifier vos plages horaires'))
 
+        # Vérifier si l'intervalle demandé est bien inclus dans la disponibilité du professeur
+        l = [self.h_start, self.h_end]  # Intervalle de la séance
+        r = [self.profDispoWeek.start_time, self.profDispoWeek.end_time]  # Intervalle de la disponibilité du professeur
 
-        """
-       [self.h_start,self.h_end]inclu [pdw.start_time,pdw.end_time]
-       ??
-       si self.h_start >= pdw.start_time et self.h_end <= pdw.end_time
+        if not (l[0] >= r[0] and l[1] <= r[1]):
+            raise ValidationError(_("Le professeur n'est pas totalement disponible pendant toute la séance, veuillez revoir les plages horaires"))
 
+        # Vérifier les conflits d'intervalle avec les séances existantes pour ce professeur
+        conflicts = Seance.objects.filter(
+            profDispoWeek=self.profDispoWeek,
+            day_week=self.day_week,
+        ).exclude(pk=self.pk)  # Exclure la séance actuelle lors de la mise à jour
 
-        """
-  
-        l= [self.h_start,self.h_end] # l: signifie left_interval
-        r= [self.profDispoWeek.start_time,self.profDispoWeek.end_time] # r: signifie right_interval
-
-        if not (l[0]>=r[0] and l[1]<=r[1]):
-            raise ValidationError(_("le professeur n'est pas totalement disponible pendant toute la seance, veuillez revoir les plages horaires"))
+        for conflict in conflicts:
+            # Vérifier si les intervalles se chevauchent
+            if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
+                raise ValidationError(_('Ce professeur est déjà occupé à ce moment.'))
 
         # Vérifier les conflits pour la salle
         conflicts = Seance.objects.filter(
             classroom=self.classroom,
             day_week=self.day_week,
-            # h_start__lt=self.h_end,   # on ne peut pas créer une seance dont l'heure de depart est inférieur à l'une des s"ance qui existe deja
-            # h_end__gt=self.h_start,     
-            profDispoWeek__busy=False
-        )
-        if conflicts.exists():
-            raise ValidationError(_('Cette salle est déjà réservée à ce moment pour un autre cours.'))
+        ).exclude(pk=self.pk)
 
-        # Vérifier les conflits pour le groupe
-        conflicts = Seance.objects.filter(
-            group=self.group,
-            day_week=self.day_week,
-            # h_start__lt=self.h_end,
-            # h_end__gt=self.h_start,
-            profDispoWeek__busy=False
-        )
-        if conflicts.exists():
-            raise ValidationError(_('Ce groupe a déjà une séance à ce moment.'))
+        for conflict in conflicts:
+            if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
+                raise ValidationError(_('Cette salle est déjà réservée à ce moment pour un autre cours.'))
 
-        # Vérifier les conflits pour le professeur
-        conflicts = Seance.objects.filter(
-            profDispoWeek=self.profDispoWeek,
-            day_week=self.day_week,
-            # h_start__lt=self.h_end,
-            # h_end__gt=self.h_start,
-            profDispoWeek__busy=False
-        )
-        if conflicts.exists():
-            raise ValidationError(_('Ce professeur est déjà occupé à ce moment.'))
+        # # Vérifier les conflits pour le groupe
+        # conflicts = Seance.objects.filter(
+        #     group__in=self.group.all(),
+        #     day_week=self.day_week,
+        # ).exclude(pk=self.pk)
+
+        for conflict in conflicts:
+            if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
+                raise ValidationError(_('Ce groupe a déjà une séance à ce moment.'))
+
+        # Vérifier la capacité de la salle
+        # from account.models import Etudiant
+        # nb_student_in_choosed_group = Etudiant.objects.filter(group__in=self.group.all()).count()
+
+        # if nb_student_in_choosed_group > self.classroom.capacity:
+        #     raise ValidationError(_(f"Cette classe ne peut pas contenir ce groupe d'étudiants. Sa capacité est de {self.classroom.capacity} places, tandis que le groupe compte {nb_student_in_choosed_group} étudiants."))
+
 
         
-        # checking de la capacité de la salle  =====================================
-        """
-        1- recupérer le nombre d'Etudiant dans le groupe choisi
-        2- comparer ce nombre à la capacité de la salle
-        3- lever une exception  en cas de supériorité au niveau du nombre d'Etudiant
-        
-        """
-        from account.models  import Etudiant
-        nb_student_in_choosed_group = Etudiant.objects.filter(group=self.group).count()
-
-        if nb_student_in_choosed_group > self.classroom.capacity:
-            raise ValidationError(_(f"Cette classe ne peut pas contenir ce groupe d'Etudiant sa capacité est {self.classroom.capacity} Place\n et le groupe compte {nb_student_in_choosed_group} Etudiants"))
-
-        
-    def save(self, *args, **kwargs):
-        self.clean()  # Appelle la méthode de validation
-        super().save(*args, **kwargs)
-
-

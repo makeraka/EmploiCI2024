@@ -8,6 +8,6 @@ urlpatterns = [
     path('p/',views.home, name="app_homeprof"),
     path('admin/get_prof_dispo/',views.get_prof_dispo, name="get_prof_dispo"),
     path('dispo',views.dispo, name="dispo"),
-    path('editDispo/<str:pk>/',views.editDispo, name="app-editDispo")
+    path('editDispo/',views.editDispo, name="app_editDispo"),
+    path('delete_dispo/', views.delete_dispo, name='app_delete_dispo'),
 ]
-

@@ -7,9 +7,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editDispoForm" >
+                <form id="editDispoForm" action="{% url 'emploi:app_editDispo'%}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" id="dispo-id">
+                    <input type="hidden" id="dispo-id" name="dispo_id">
                     <div class="mb-3">
                         <label for="day-week" class="form-label">Jour de la semaine</label>
                         <select id="day-week" class="form-control" name="day_week">

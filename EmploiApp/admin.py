@@ -48,13 +48,13 @@ class SeanceAdmin(admin.ModelAdmin):
     class Media:
         js = ('assets/js/seance_form.js',)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if 'classroom' in form.base_fields:
-            form.base_fields['classroom'].queryset = Classroom.objects.filter(busy=False)
-        if 'profDispoWeek' in form.base_fields:
-            form.base_fields['profDispoWeek'].queryset = ProfDispoWeek.available.all()  # Utiliser le manager personnalisé
-        return form
+    # def get_form(self, request, obj=None, **kwargs):
+    #     form = super().get_form(request, obj, **kwargs)
+    #     if 'classroom' in form.base_fields:
+    #         form.base_fields['classroom'].queryset = Classroom.objects.filter(busy=False)
+    #     if 'profDispoWeek' in form.base_fields:
+    #         form.base_fields['profDispoWeek'].queryset = ProfDispoWeek.available.all()  # Utiliser le manager personnalisé
+    #     return form
 
     def save_model(self, request, obj, form, change):
         # Enregistrer d'abord l'objet pour obtenir un ID
