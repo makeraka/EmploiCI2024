@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 @login_required(login_url='account:app_login')
 def home(request):
     context = {}
-    # Récupératon de la date actuelle
+    # Récupération de la date actuelle
     current_date = datetime.now().date()
     current_day_of_week = current_date.weekday()  # 0 = Lundi, 6 = Dimanche
 
@@ -25,7 +25,7 @@ def home(request):
     start_of_week = current_date - timedelta(days=current_day_of_week)
     days_of_week = [start_of_week + timedelta(days=i) for i in range(7)]
 
-    # Récupération de la date sélectionnée
+    # Récupération de la date sélectionnée (ou de la date actuelle par défaut)
     selected_date_str = request.GET.get('date', current_date)
 
     # Si la date est une chaîne de caractères, la convertir en date
@@ -37,8 +37,10 @@ def home(request):
     # Déterminer le jour de la semaine pour la date sélectionnée
     selected_day_of_week = selected_date.weekday()
 
-    # Trouver la séance actuelle (pour pouvoir la signalé comme en cours)
-    now = datetime.now().time()  # Heure actuelle
+    # Récupération de l'heure actuelle pour vérifier les séances en cours
+    now = datetime.now().time()
+
+    # Initialisation de la séance actuelle
     current_seance = None
 
     # Vérifier si l'utilisateur est un étudiant
@@ -46,20 +48,24 @@ def home(request):
         # Récupérer l'étudiant et son groupe
         student = Etudiant.objects.get(user=request.user)
         student_group = student.group
+        print('student_group:======== > ', student_group)
 
         # Récupérer les séances pour le groupe de l'étudiant et le jour sélectionné
         seances = Seance.objects.filter(
-            group=student_group,
+            group__in=[student_group],  # Utilisation de ManyToMany
             profDispoWeek__day_week=selected_day_of_week
         )
 
-        # Trouver la séance actuelle
-        current_seance = Seance.objects.filter(
-            group=student_group,
-            profDispoWeek__day_week=selected_day_of_week,
-            profDispoWeek__start_time__lte=now,
-            profDispoWeek__end_time__gte=now
-        ).first()
+        # Si le jour sélectionné est aujourd'hui, chercher la séance actuelle
+        print('aujourdhui recuperé=============>',current_date)
+        print('date selectoinnée;=============>',selected_date)
+        if selected_date == current_date:
+            current_seance = Seance.objects.filter(
+                group__in=[student_group],
+                profDispoWeek__day_week=current_day_of_week,
+                h_start__lte=now,
+                h_end__gte=now
+            ).first()
 
         context['seances'] = seances
 
@@ -73,46 +79,40 @@ def home(request):
             profDispoWeek__day_week=selected_day_of_week
         )
 
-        # Trouver la séance actuelle
-        current_seance = Seance.objects.filter(
-            profDispoWeek__teacher=teacher,
-            profDispoWeek__day_week=selected_day_of_week,
-            profDispoWeek__start_time__lte=now,
-            profDispoWeek__end_time__gte=now
-        ).first()
+        # Si le jour sélectionné est aujourd'hui, chercher la séance actuelle
+       
+        if selected_date == current_date:
+            current_seance = Seance.objects.filter(
+                profDispoWeek__teacher=teacher,
+                profDispoWeek__day_week=current_day_of_week,
+                h_start__lte=now,
+                h_end__gte=now
+            ).first()
 
         context['seances_teacher'] = seances_teacher
 
+    # Ajouter les informations au contexte
     context['days_of_week'] = days_of_week
     context['selected_date'] = selected_date
-    context['current_seance'] = current_seance  # Ajoutez ceci au contexte
+    context['current_seance'] = current_seance  # Ajout de la séance actuelle
 
     return render(request, 'home.html', context)
 
 
 def get_prof_dispo(request):
-    course_id = request.GET.get('course_id')
-    data = []  # Initialiser une liste vide pour les données
+    professeur_id = request.GET.get('professeur_id')
+    if professeur_id:
+        disponibilites = ProfDispoWeek.objects.filter(teacher_id=professeur_id)
+        options = [
+            {
+                'id': dispo.id,
+                'text': f"{dispo.teacher} - {dispo.get_day_week_display()} {dispo.start_time} - {dispo.end_time}"
+            }
+            for dispo in disponibilites
+        ]
+        return JsonResponse(options, safe=False)
 
-    try:
-        course = Course.objects.get(id=course_id)
-        # Récupérer les disponibilités du professeur pour le cours
-        prof_dispos = ProfDispoWeek.objects.filter(teacher=course.teacher)
-
-        # Construire les données avec les informations de disponibilité
-        data = [{
-            'id': dispo.id,
-            'text': f"{dispo.get_day_week_display()} de {dispo.start_time} à {dispo.end_time}"
-        } for dispo in prof_dispos]
-
-    except Course.DoesNotExist:
-        # Si le cours n'existe pas, data reste vide
-        pass
-
-    return JsonResponse(data, safe=False)
-
-
-
+    return JsonResponse([], safe=False)
 
 
 #*********************vue pour la disponibilité des professeurs *********************

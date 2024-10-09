@@ -29,12 +29,12 @@ class SemestreAdmin(admin.ModelAdmin):
 
 @admin.register(ProfDispoWeek)
 class ProfDispoWeekAdmin(admin.ModelAdmin):
-    # list_display = ['teacher','day_week''busy', 'h_start', 'h_end']
-    # list_filter = ['teacher','day_week''busy', 'h_start', 'h_end']
+    list_display = ['teacher','day_week','busy', 'start_time', 'end_time']
+    list_filter = ['teacher','day_week']
     pass
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    pass
+    list_filter = ['semestre']
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
@@ -42,11 +42,11 @@ class ClassroomAdmin(admin.ModelAdmin):
 @admin.register(Seance)
 class SeanceAdmin(admin.ModelAdmin):
     form = SeanceForm
-    list_display = ['course', 'day_week', 'classroom', 'profDispoWeek']  # Ajout de day_week
-    list_filter = ['course', 'classroom', 'profDispoWeek__day_week', 'profDispoWeek__teacher', 'day_week']  # Ajout de day_week
+    list_display = ['course','professeur', 'day_week', 'classroom', 'profDispoWeek']  
+    list_filter = ['course','professeur', 'classroom', 'professeur', 'day_week']  
     
     class Media:
-        js = ('assets/js/seance_form.js',)
+        js = ('assets/js/disponibilty_loader.js',)
 
     # def get_form(self, request, obj=None, **kwargs):
     #     form = super().get_form(request, obj, **kwargs)

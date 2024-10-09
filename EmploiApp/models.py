@@ -42,7 +42,7 @@ class Semestre(models.Model):
     deleted = models.BooleanField(default=False)
     
     def __str__(self):
-        return f'{self.number}'
+        return f'Semestre - {self.number} Licence {self.licence.number}'
     
 
 class Group(models.Model):
@@ -63,7 +63,7 @@ class Course(models.Model):
   
     label = models.CharField(max_length=50)
     semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE)
-    teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)
+    # teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)  (un cours n'appartient pas à un professeur)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -155,12 +155,11 @@ class ProfDispoWeek(models.Model):
             self.busy = len(self.occupied_intervals) > 0
 
 
-        def __str__(self):
-            day_name = dict(self.DAYS_OF_WEEK).get(self.day_week, "Jour inconnu")
-            return f'{day_name} {self.start_time} - {self.end_time}'
+    def __str__(self):
+        day_name = dict(self.DAYS_OF_WEEK).get(self.day_week, "Jour inconnu")
+        return f'{self.teacher}-{day_name} {self.start_time} - {self.end_time}'
 
-# ===================================================================
-from django.utils.translation import gettext_lazy as _
+# ==================================================================
 
 class Seance(models.Model):
     DAYS_OF_WEEK = [
@@ -173,7 +172,8 @@ class Seance(models.Model):
         (6, 'Dimanche'),
     ]
     
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)    
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    professeur = models.ForeignKey('account.Teacher',on_delete=models.CASCADE)  # j'ai ajouté ce champ parce que j'ai brisé la relation entre Teacher et course, donc je ne peux plus avoir accès au teacher via cours, et cours est independant du professeur
     day_week = models.IntegerField(choices=DAYS_OF_WEEK)
     h_start = models.TimeField(auto_now=False, auto_now_add=False)
     h_end = models.TimeField(auto_now=False, auto_now_add=False)

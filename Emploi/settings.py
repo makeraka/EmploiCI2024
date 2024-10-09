@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'EmploiApp',
     'account',
+    'pdfmaker',
  
 ]
 
@@ -86,7 +87,7 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',  
-#         'NAME': 'emploi_db',  
+#         'NAME': 'emploidb',  
 #         'USER': 'root',  
 #         'PASSWORD': '',  
 #         'HOST': 'localhost',  

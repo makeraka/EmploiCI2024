@@ -32,31 +32,20 @@
                    
                             </div>
                             <!--end:Menu item-->
-                            <!--begin:Menu item-->
                             {% if user.is_authenticated %}
-                            {% if user.teacher_set.exists %} 
-                            <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start" class="menu-item menu-lg-down-accordion me-0 me-lg-2">
-                                <!--begin:Menu link-->
-
-                            
-                        
-                          
-                                
-                                {% comment %} <span class="menu-link">
-                                    <span class="menu-title">Ma disponibilité</span>
-                                    <span class="menu-arrow d-lg-none"></span>
-                                </span> {% endcomment %}
-
-                                <div class="menu-item px-5">
-                                    <a href="{% url 'emploi:app_home' %}" class="menu-link px-5 btn btn-white">Mon Emploi</a>
-                                </div>                                
-                                
-                                <div class="menu-item px-5">
-                                    <a href="{% url 'emploi:dispo' %}" class="menu-link px-5 btn btn-white">Mes Disponibilité</a>
+                            {% if user.teacher %}
+                                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start" class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+                                    <!--begin:Menu link-->
+                                    <div class="menu-item px-5">
+                                        <a href="{% url 'emploi:app_home' %}" class="menu-link px-5 btn btn-white">Mon Emploi</a>
+                                    </div>                                
+                                    <div class="menu-item px-5">
+                                        <a href="{% url 'emploi:dispo' %}" class="menu-link px-5 btn btn-white">Mes Disponibilités</a>
+                                    </div>
                                 </div>
-                            </div>
                             {% endif %}
-                            {% endif %}
+                        {% endif %}
+                        
                            
                         </div>
                         <!--end::Menu-->
@@ -77,7 +66,7 @@
                                     <div class="menu-content d-flex align-items-center px-3">
                                         <!--begin::Avatar-->
                                         <div class="symbol symbol-50px me-5">
-                                            <a href="{% url 'emploi:app_home' %}" class="text-decoration-none"><img alt="Logo" src="{% static 'assets/media/avatars/300-1.jpg' %}" /></a>
+                                            <a href="{% url 'emploi:app_home' %}" class="text-decoration-none"><img alt="Logo" height="50px" width="50px" src="{% static 'assets/media/avatars/300-1.jpg' %}" /></a>
                                         </div>
                                         <!--end::Avatar-->
                                         <!--begin::Username-->

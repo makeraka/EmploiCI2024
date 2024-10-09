@@ -84,15 +84,9 @@ def loginView(request):
         try:
             user = authenticate(username=matricule, password=password)
             if user:
-                print("j'ai capturé l'utilisateur",user)
                 login(request,user)
-                print("j'ai loger le l'utilisateur")
                 return redirect('emploi:app_home')
-                #redirection selon le type de user
-                # if user.etudiant:
-                #     return redirect('emploi:app_home')
-                # elif user.teacher:
-                #     return redirect('emploi:app_homeprof')  # pas totalement gérée, je dois y revenir pour achever
+               
         except:
             messages.error(request,'Erreur de Connexion')
         

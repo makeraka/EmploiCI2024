@@ -8,8 +8,8 @@
         <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
         <div class="fw-semibold ms-5 text-gray-600">
             <h1 class="text-success">Seance Actuelle</h1>
-            <div class="fs-1 text-primary">{{ current_seance.profDispoWeek.start_time|date:"H:i" }} - {{ current_seance.profDispoWeek.end_time|date:"H:i" }}
-                <span class="fs-7 text-gray-400 text-uppercase">{{ current_seance.start_time|date:"A" }}</span>
+            <div class="fs-1 text-primary">{{ current_seance.h_start|date:"H:i" }} - {{ current_seance.h_end|date:"H:i" }}
+                <span class="fs-7 text-gray-400 text-uppercase">{{ current_seance.h_start|date:"A" }}</span>
             </div>
             <div class="row">
                 <p class="fs-2 ">Cours : {{current_seance.course.label}}</p>
@@ -49,7 +49,7 @@
     <!--begin::Tab Content-->
 
     {% if user.is_authenticated %}
-        {% if user.etudiant_set.exists %}
+        {% if user.etudiant %}
         <div class="tab-content">
             <div class="tab-pane fade show active">
                 <!-- Itération sur les séances du jour sélectionné -->
@@ -57,7 +57,7 @@
                 <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
                     <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
                     <div class="fw-semibold ms-5 text-gray-600">
-                        <div class="fs-1 text-primary">{{ seance.profDispoWeek.start_time|date:"H:i" }} - {{ seance.profDispoWeek.end_time|date:"H:i" }}
+                        <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
                             <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
                         </div>
                         <div class="row">
@@ -68,7 +68,7 @@
                         </div>
                         <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
                         <div class="text-gray-500">Animé par
-                            <a href="#">{{ seance.course.teacher.user.first_name }}</a>
+                            <a href="#">{{ seance.professeur.user.first_name }}</a>
                         </div>
                     </div>
                     <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
@@ -79,14 +79,14 @@
             </div>
         </div>
 
-        {% elif user.teacher_set.exists %}
+        {% elif user.teacher %}
         <div class="tab-content">
             <div class="tab-pane fade show active">
                 {% for seance in seances_teacher %}
                 <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
                     <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
                     <div class="fw-semibold ms-5 text-gray-600">
-                        <div class="fs-1 text-primary">{{ seance.profDispoWeek.start_time|date:"H:i" }} - {{ seance.profDispoWeek.end_time|date:"H:i" }}
+                        <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
                             <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
                         </div>
                         <div class="row">
@@ -96,8 +96,8 @@
                             <p class="fs-3">Dans : {{seance.classroom.label}}</p>
                         </div>
                         <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
-                        <div class="text-gray-500">Animé par
-                            <a href="#">{{ seance.course.teacher.user.first_name }}</a>
+                        <div class="text-gray-500">Animé par 
+                            <a href="#">Moi</a>
                         </div>
                     </div>
                     <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
