@@ -40,21 +40,33 @@ class CourseAdmin(admin.ModelAdmin):
 class ClassroomAdmin(admin.ModelAdmin):
     pass
 @admin.register(Seance)
+# class SeanceAdmin(admin.ModelAdmin):
+#     form = SeanceForm
+#     list_display = ['course','professeur', 'day_week', 'classroom', 'profDispoWeek']  
+#     list_filter = ['course','professeur', 'classroom', 'professeur', 'day_week']  
+    
+#     class Media:
+#         js = ('assets/js/charge_dispo.js',)
+
+    
+
+#     def save_model(self, request, obj, form, change):
+#         # Enregistrer d'abord l'objet pour obtenir un ID
+#         super().save_model(request, obj, form, change)
+        
+#         # Maintenant que l'objet est sauvegardé, vous pouvez gérer le champ ManyToMany
+#         # Vérifiez si des groupes ont été sélectionnés dans le formulaire
+#         if form.cleaned_data.get('group'):
+#             obj.group.set(form.cleaned_data['group'])
+
+
 class SeanceAdmin(admin.ModelAdmin):
     form = SeanceForm
-    list_display = ['course','professeur', 'day_week', 'classroom', 'profDispoWeek']  
-    list_filter = ['course','professeur', 'classroom', 'professeur', 'day_week']  
+    list_display = ['course', 'day_week', 'classroom', 'profDispoWeek']  # Ajout de day_week
+    list_filter = ['course', 'classroom', 'profDispoWeek__day_week', 'profDispoWeek__teacher', 'day_week']  # Ajout de day_week
     
     class Media:
-        js = ('assets/js/disponibilty_loader.js',)
-
-    # def get_form(self, request, obj=None, **kwargs):
-    #     form = super().get_form(request, obj, **kwargs)
-    #     if 'classroom' in form.base_fields:
-    #         form.base_fields['classroom'].queryset = Classroom.objects.filter(busy=False)
-    #     if 'profDispoWeek' in form.base_fields:
-    #         form.base_fields['profDispoWeek'].queryset = ProfDispoWeek.available.all()  # Utiliser le manager personnalisé
-    #     return form
+        js = ('assets/js/charge_dispo.js',)
 
     def save_model(self, request, obj, form, change):
         # Enregistrer d'abord l'objet pour obtenir un ID
@@ -64,6 +76,8 @@ class SeanceAdmin(admin.ModelAdmin):
         # Vérifiez si des groupes ont été sélectionnés dans le formulaire
         if form.cleaned_data.get('group'):
             obj.group.set(form.cleaned_data['group'])
+
+
 
     
 @admin.register(Licence)

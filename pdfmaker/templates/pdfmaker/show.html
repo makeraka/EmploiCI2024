@@ -3,88 +3,67 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title>Génération d'emploi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      /* S'assure que le corps occupe 100% de la hauteur */
+      body, html {
+        height: 100%;
+      }
+      /* Ajuste la taille de la div pour qu'elle reste centrée */
+      .centered-div {
+        min-width: 300px;
+        max-width: 500px;
+        padding: 20px;
+      }
+    </style>
   </head>
-  <body>
-        <div class="container">
-            <div class="row mt-5">
-            <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
+  <body class="d-flex justify-content-center align-items-center bg-dark" style="height: 100vh;">
+    <div class="container bg-light p-4 rounded shadow centered-div">
+      <h5 class="text-center">Paramètre de Génération du document</h5>
+      <form action="{% url 'create_pdf' %}" method="post">
+        {% csrf_token %}
+        
+        <!-- choix du département -->
+        <!-- <div class="mb-3 form-group p-3 bg-opacity-10 border border-start-0 border-end-0 border-top-0 rounded-end">
+          <label for="department" class="form-label fs-4">Département:</label>
+          <select class="form-select form-select-lg mb-3" name="department" required>
+            <option selected>Selectionner un Département</option>
+            {% for department in departments %}
+              <option value="{{ department.id }}">{{ department.label }}</option>
+            {% endfor %}
+          </select>
+        </div> -->
 
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-
-
-                  <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <a href="{% url 'create_pdf' %}" class="btn btn-primary">Générer le pdf</a>
+        <!-- Choix de la licence -->
+        <div class="mb-3 form-group p-3 bg-opacity-10 border border-start-0 border-end-0 border-top-0 rounded-end">
+          <label for="licence" class="form-label fs-4">Licence:</label>
+          <select class="form-select form-select-lg mb-3" name="group_id" required>
+            <option selected>Selectionner une Licence</option>
+            {% for group in groups %}
+              <option value="{{ group.id }}">{{group.licence.department.label}} /L {{group.licence.number }}/ Group: {{ group.number }}</option>
+            {% endfor %}
+          </select>
         </div>
 
+        <!-- Choix du semestre
+        <div class="mb-3 form-group p-3 bg-opacity-10 border border-start-0 border-end-0 border-top-0 rounded-end">
+          <label for="semestre" class="form-label fs-4">Semestre:</label>
+          <select class="form-select form-select-lg mb-3" name="semestre" required>
+            <option selected>Selectionner un Semestre</option>
+            {% for semestre in semestres %}
+              <option value="{{ semestre.id }}">{{ semestre.number }}</option>
+            {% endfor %}
+          </select>
+        </div> -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <!-- Bouton d'envoi -->
+        <div class="form-group d-flex justify-content-center">
+          <button type="submit" class="btn btn-primary btn-lg">Génerer l'Emploi PDF</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"></script>
   </body>
 </html>

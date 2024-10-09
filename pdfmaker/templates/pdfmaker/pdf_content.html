@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            size: A4 landscape; /* Pour le paysage */
-            margin: 1in; /* Ajustez les marges ici */
+            size: A4 landscape;
+            margin: 1in;
         }
         body {
             font-family: Arial, sans-serif;
@@ -24,11 +24,38 @@
         th {
             background-color: #f2f2f2;
         }
+        /* Flexbox styling for rows and columns */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .col {
+            flex: 1;
+        }
+        .col-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 10px;
+        }
+        .text-left {
+            text-align: left;
+        }
+        .text-right {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
+    <div class="row">
+        <div class="col text-center">
+            <h1>Centre Informatique</h1>
+        </div>
+    </div>
+    
     <h1>Emploi du Temps</h1>
     <h2>Licence: {{ licence }} ({{ department.label }})</h2>
+
     <table>
         <thead>
             <tr>
@@ -41,21 +68,35 @@
             </tr>
         </thead>
         <tbody>
-            {% for seance in seances %}
-            <tr>
-                <td>{{ seance.get_day_week_display }}</td>
-                <td>{{ seance.h_start }}</td>
-                <td>{{ seance.h_end }}</td>
-                <td>{{ seance.course.label }}</td>
-                <td>{{ seance.classroom.label }}</td>
-                <td>{{ seance.profDispoWeek.teacher}}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">Aucune séance programmée.</td>
-            </tr>
+            {% for day, day_seances in seances_par_jour.items %}
+                <tr>
+                    <td rowspan="{{ day_seances|length }}">{{ day }}</td>
+                    {% if day_seances %}
+                        {% for seance in day_seances %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <td>{{ seance.h_start }}</td>
+                            <td>{{ seance.h_end }}</td>
+                            <td>{{ seance.course.label }}</td>
+                            <td>{{ seance.classroom.label }}</td>
+                            <td>{{ seance.profDispoWeek.teacher }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <td colspan="5">Pas de Cours</td>
+                    </tr>
+                    {% endif %}
             {% endfor %}
         </tbody>
     </table>
+
+    <br>
+    <div class="row">
+        <p class="col text-left">
+            Le Directeur
+        </p>
+        <p class="col text-right">
+            Le Chef de Département
+        </p>
+    </div>
 </body>
 </html>
