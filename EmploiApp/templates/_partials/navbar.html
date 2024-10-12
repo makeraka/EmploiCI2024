@@ -33,8 +33,9 @@
                             </div>
                             <!--end:Menu item-->
                             {% if user.is_authenticated %}
-                            {% if user.teacher %}
+                           
                                 <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start" class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+                                    {% if user.teacher %}
                                     <!--begin:Menu link-->
                                     <div class="menu-item px-5">
                                         <a href="{% url 'emploi:app_home' %}" class="menu-link px-5 btn btn-white">Mon Emploi</a>
@@ -42,8 +43,12 @@
                                     <div class="menu-item px-5">
                                         <a href="{% url 'emploi:dispo' %}" class="menu-link px-5 btn btn-white">Mes Disponibilités</a>
                                     </div>
+                                    {% endif %}
+                                    <div class="menu-item px-5">
+                                        <a href="{% url 'emploi:disp_salle' %}" class="menu-link px-5 btn btn-white">Salles</a>
+                                    </div>
                                 </div>
-                            {% endif %}
+
                         {% endif %}
                         
                            
@@ -84,7 +89,7 @@
                                 <!--end::Menu separator-->
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-5">
-                                    <a href="../../demo1/dist/account/overview.html" class="menu-link px-5">Mon Profile</a>
+                                    <a href="{% url 'account:teacher_profil'%}" class="menu-link px-5">Mon Profile</a>
                                 </div>
     
                                 

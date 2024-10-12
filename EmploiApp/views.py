@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from account.models import Etudiant, Teacher
-from .models import Course, Seance, ProfDispoWeek
+from .models import Course, Seance, ProfDispoWeek, Classroom
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
 from .forms import Dispoform
@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.db.models import Q
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 @login_required(login_url='account:app_login')
 @login_required(login_url='account:app_login')
@@ -48,7 +49,6 @@ def home(request):
         # Récupérer l'étudiant et son groupe
         student = Etudiant.objects.get(user=request.user)
         student_group = student.group
-        print('student_group:======== > ', student_group)
 
         # Récupérer les séances pour le groupe de l'étudiant et le jour sélectionné
         seances = Seance.objects.filter(
@@ -57,8 +57,7 @@ def home(request):
         )
 
         # Si le jour sélectionné est aujourd'hui, chercher la séance actuelle
-        print('aujourdhui recuperé=============>',current_date)
-        print('date selectoinnée;=============>',selected_date)
+      
         if selected_date == current_date:
             current_seance = Seance.objects.filter(
                 group__in=[student_group],
@@ -214,3 +213,35 @@ def delete_dispo(request):
 
     # Rediriger vers la page de liste des disponibilités
     return redirect('emploi:dispo') 
+
+
+
+
+
+
+
+# Disponibilité des salles =========================
+
+
+@login_required(login_url="account:app_login")
+def dispo_salle(request):
+    
+    classrooms = Classroom.objects.all()
+    seances = Seance.objects.all()
+    
+    if request.method == "POST":
+        day_choosed = request.POST.get('day')
+        classroom_choosed = request.POST.get('classroom')
+        if classroom_choosed:
+            classroom = get_object_or_404(Classroom, pk=classroom_choosed)
+            seances = seances.filter(classroom=classroom)
+            
+        if day_choosed:
+            seances = seances.filter(day_week = day_choosed)
+            
+
+    context=  {
+        'seances':seances,
+        'classrooms':classrooms,
+    }
+    return render(request,'classroom/dispo.html',context)

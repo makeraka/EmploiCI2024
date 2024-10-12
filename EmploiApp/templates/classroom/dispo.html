@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="card mb-5 mb-xl-8">
+    <!--begin::Header-->
+    <div class="card-header border-0 pt-5 bg-primary">
+        <div class="col-12">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        <h3 class="card-title align-items-start flex-column text-center ">
+            <span class="card-label fw-bold fs-1 mb-1 text-white">Disponibilités des Salles de Classe</span>
+        </h3>
+        <!-- search form -->
+        <div class="">
+            <form class="d-flex" role="search" method="POST">
+                {% csrf_token %}
+                <select name="day" class="form-control me-2">
+                    <option value="">Sélectionner un Jour</option>
+                    <option value="0">Lundi</option>
+                    <option value="1">Mardi</option>
+                    <option value="2">Mercredi</option>
+                    <option value="3">Jeudi</option>
+                    <option value="4">Vendredi</option>
+                    <option value="5">Samedi</option>
+                    <option value="6">Dimanche</option>
+                </select>
+                <select name="classroom" class="form-control me-2">
+                    <option value="">Sélectionner une salle</option>
+                    {% for classroom in classrooms %}
+                    <option value="{{ classroom.pk }}">{{ classroom.label }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-white" type="submit">Filtrer </button>
+            </form>
+        </div>
+    </div>
+    <!--end::Header-->
+    <!--begin::Body-->
+    <div class="card-body py-3">
+        <!--begin::Table container-->
+        <div class="table-responsive">
+            <div class="container mt-4">
+                <div class="row">
+                    {% for seance in seances %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card card-custom shadow-lg h-100">
+                            <div class="card-body">
+                                <div>
+                                    <p class="fs-1" style="font-size: 50px;">
+                                        <i class="fas fa-calendar-check fa-2x"></i> : {{ seance.get_day_week_display }}<br>
+                                        <i class="fas fa-clock fa-2x"></i> : <span class="bold">De</span> {{ seance.start_time|time:"H\\hi" }}  <span class="bold">à</span> {{ seance.end_time|time:"H\\hi" }}
+                                    </p>
+                                </div>
+                                {% if seance.occupied_intervals %}
+                                <div>
+                                    <h5>Horaires Assignés :</h5>
+                                    <ul class="text-primary fs-2">
+                                        {% for interval in seance.occupied_intervals %}
+                                            <li>{{ interval.0 }} - {{ interval.1 }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                                
+                                {% if not seance.busy %}
+                                <div class="d-flex justify-content-end">
+                                    <a href="#" class="me-3 btn badge badge-primary p-2 edit-dispo-btn" data-bs-toggle="modal" data-bs-target="#editDispoModal" data-id="{{ seance.pk }}" data-day="{{ seance.day_week }}" data-start-time="{{ seance.start_time|time:'H:i' }}" data-end-time="{{ seance.end_time|time:'H:i' }}">
+                                        Modifier
+                                    </a>
+                                    <a data-bs-toggle="modal" data-bs-target="#exampleModal" class="delete-dispo-btn" data-id="{{ seance.pk }}" data-day="{{ seance.get_day_week_display }}" data-start-time="{{ seance.start_time|time:'H:i' }}" data-end-time="{{ seance.end_time|time:'H:i' }}">
+                                        <i class="fa-solid fa-trash fa-2x" style="font-size: 20px;"></i>
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Table-->
+    </div>
+    <!--end::Body-->
+</div>
+
+<!-- MODAL DE CREATION -->
+{% include "teacher/create_modal_form.html" %}
+{% include "teacher/edit_modal.html" %}
+{% include "teacher/delete_confirm_modal.html" %}
+
+<style>
+    .card-custom {
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card-custom .card-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    .card-custom .card-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+    .card-custom .card-text {
+        font-size: 0.875rem;
+    }
+</style>
+
+<!-- GESTION DU MODAL -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editDispoBtns = document.querySelectorAll('.edit-dispo-btn');
+        editDispoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const classroomId = this.getAttribute('data-id');
+                const dayWeek = this.getAttribute('data-day');
+                const startTime = this.getAttribute('data-start-time');
+                const endTime = this.getAttribute('data-end-time');
+
+                document.getElementById('dispo-id').value = classroomId;
+                document.getElementById('day-week').value = dayWeek;
+                document.getElementById('start-time').value = startTime;
+                document.getElementById('end-time').value = endTime;
+            });
+        });
+
+        const deleteDispoBtns = document.querySelectorAll('.delete-dispo-btn');
+        deleteDispoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const classroomId = this.getAttribute('data-id');
+                const day = this.getAttribute('data-day');
+                const startTime = this.getAttribute('data-start-time');
+                const endTime = this.getAttribute('data-end-time');
+
+                const modalBody = document.querySelector('#exampleModal .modal-body p');
+                modalBody.textContent = `Vous êtes sur le point de supprimer la disponibilité du ${day} de ${startTime} à ${endTime}.`;
+                document.getElementById('delete-dispo-id').value = classroomId;
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

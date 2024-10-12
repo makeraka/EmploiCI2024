@@ -5,7 +5,8 @@ from django.http import HttpResponse
 from django.contrib import messages
 from EmploiApp import models as E_model
 from .import models as A_model
-from .forms import LoginForm
+from .forms import LoginForm,TeacherProfilForm
+
 from django.contrib.auth import get_user_model, authenticate,login,logout
 
 User = get_user_model() 
@@ -97,6 +98,33 @@ def loginView(request):
 def logoutView(request):
     logout(request)
     return redirect('account:app_login')
+
+
+
+
+# **************************** le profil des utilisateurs ***********************************
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def teacher_profil(request):
+    teacher = A_model.Teacher.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        form = TeacherProfilForm(request.POST, request.FILES, user=request.user, instance=teacher)
+        if form.is_valid():
+            print('=========Le formulaire est soumis =======')
+            form.save()
+            print('=========Le formulaire est save =======')
+            messages.success(request, "Les modifications ont été enregistrées avec succès.")
+            return redirect('account:teacher_profil')
+        else:
+            print(f'========={form.errors}============')
+    else:
+        
+        form = TeacherProfilForm(user=request.user, instance=teacher)
+
+    return render(request, 'profil/teacher_profil.html', {'teacher': teacher, 'form': form})
+
 
 
 
