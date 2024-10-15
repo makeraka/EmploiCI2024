@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+
 from pathlib import Path
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-=kny=gtwuj04%#4qe8g@w7=czu=7i4%c@sy9ol7ne9nfyyaa15
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.139']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.222.40']
 
 
 # Application definition
@@ -264,7 +265,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     # Relative paths to custom CSS/JS scripts (must be present in static files)
 #     "custom_css": None,
 #     # "custom_js": None,
-#     "custom_js": ("assets/js/charge_dispo.js",), 
+#     "custom_js": os.path.join(STATIC_URL+'assets/js/charge_dispo.js'), 
 #     # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
 #     "use_google_fonts_cdn": True,
 #     # Whether to show the UI customizer on the sidebar

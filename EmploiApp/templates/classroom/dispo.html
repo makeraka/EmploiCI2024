@@ -51,37 +51,54 @@
         <div class="table-responsive">
             <div class="container mt-4">
                 <div class="row">
-                    {% for seance in seances %}
-                    <div class="col-md-3 mb-4">
+                    <!-- Boucle à travers les salles de classe -->
+                    {% for classroom in classrooms %}
+                    <div class="col-md-12 mb-4">
                         <div class="card card-custom shadow-lg h-100">
                             <div class="card-body">
-                                <div>
-                                    <p class="fs-1" style="font-size: 50px;">
-                                        <i class="fas fa-calendar-check fa-2x"></i> : {{ seance.get_day_week_display }}<br>
-                                        <i class="fas fa-clock fa-2x"></i> : <span class="bold">De</span> {{ seance.start_time|time:"H\\hi" }}  <span class="bold">à</span> {{ seance.end_time|time:"H\\hi" }}
-                                    </p>
-                                </div>
-                                {% if seance.occupied_intervals %}
-                                <div>
-                                    <h5>Horaires Assignés :</h5>
-                                    <ul class="text-primary fs-2">
-                                        {% for interval in seance.occupied_intervals %}
-                                            <li>{{ interval.0 }} - {{ interval.1 }}</li>
+                                <h4>{{ classroom.label }}</h4>
+
+                                <!-- Collapse button for each classroom -->
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ classroom.pk }}" aria-expanded="false" aria-controls="collapse{{ classroom.pk }}">
+                                    Voir les occupations
+                                </button>
+
+                                <!-- Collapse content for classroom sessions -->
+                                <div class="collapse mt-3" id="collapse{{ classroom.pk }}">
+                                    <ul class="list-group">
+                                        {% for seance in seances %}
+                                            {% if seance.classroom == classroom %}
+                                
+                                            <div class="col-xl-3 col-md-6 mb-4">
+                                                <div class="card border-left-primary shadow h-100 py-2">
+                                                    <div class="card-body">
+                                                        <div class="row no-gutters align-items-center">
+                                                            <div class="col mr-2">
+                                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                    {{ seance.get_day_week_display }} : de {{ seance.h_start }} à {{ seance.h_end }}
+                                                                </div>
+                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                                    Cours : {{ seance.course.label }}
+                                                                </div>
+                                                                <div class="mt-2 text-gray-600">
+                                                                    Professeur : {{ seance.professeur }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {% endif %}
+                                        {% empty %}
+                                        <li class="list-group-item">Aucune séance programmée</li>
                                         {% endfor %}
                                     </ul>
                                 </div>
-                                {% endif %}
-                                
-                                {% if not seance.busy %}
-                                <div class="d-flex justify-content-end">
-                                    <a href="#" class="me-3 btn badge badge-primary p-2 edit-dispo-btn" data-bs-toggle="modal" data-bs-target="#editDispoModal" data-id="{{ seance.pk }}" data-day="{{ seance.day_week }}" data-start-time="{{ seance.start_time|time:'H:i' }}" data-end-time="{{ seance.end_time|time:'H:i' }}">
-                                        Modifier
-                                    </a>
-                                    <a data-bs-toggle="modal" data-bs-target="#exampleModal" class="delete-dispo-btn" data-id="{{ seance.pk }}" data-day="{{ seance.get_day_week_display }}" data-start-time="{{ seance.start_time|time:'H:i' }}" data-end-time="{{ seance.end_time|time:'H:i' }}">
-                                        <i class="fa-solid fa-trash fa-2x" style="font-size: 20px;"></i>
-                                    </a>
-                                </div>
-                                {% endif %}
+
                             </div>
                         </div>
                     </div>

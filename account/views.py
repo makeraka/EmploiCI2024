@@ -9,6 +9,8 @@ from .forms import LoginForm,TeacherProfilForm
 
 from django.contrib.auth import get_user_model, authenticate,login,logout
 
+
+
 User = get_user_model() 
 import re
 
@@ -128,3 +130,79 @@ def teacher_profil(request):
 
 
 
+
+
+
+#*********************vue pour le profil sutdent*********************
+
+# def profile(request, username):
+#     student = get_object_or_404(A_model.Etudiant, user__username=username)
+#     return render(request, 'student/profile.html', {'student': student})
+
+def profile(request):
+    if not request.user.etudiant:
+        return redirect('emploi:home')
+    else:
+        student = request.user.etudiant
+        return render(request,'student/profile.html',{'student':student})
+        
+        
+        
+@login_required
+def some_view_that_renders_modal(request, username):
+    student = get_object_or_404(A_model.Etudiant, user__username=username)
+    groups = E_model.Group.objects.all()  # Récupérer tous les groupes
+
+    return render(request, 'ton_template_avec_modal.html', {
+        'student': student,
+        'groups': groups,  # Passe les groupes au contexte
+    })
+
+# def update_student_profile(request, username):
+#     student = get_object_or_404(A_model.Etudiant, user__username=username)
+    
+#     if request.method == "POST":
+#         # Met à jour seulement les champs autorisés
+#         student.telephone = request.POST.get('tel', student.telephone)
+#         student.adresse = request.POST.get('adress', student.adresse)
+
+#         # Pour l'image, assure-toi de gérer le fichier téléchargé
+#         if 'imageStudent' in request.FILES:
+#             student.photo = request.FILES['imageStudent']
+        
+#         student.save()
+#         # Redirige ou fais autre chose après la mise à jour
+#         return render(request, 'student/profile.html', {'student': student})
+
+#     groups = E_model.Group.objects.all()  # Récupérer tous les groupes pour le formulaire
+#     # return render(request, 'student/profile.html', {'student': student, 'groups': groups})
+
+
+
+# soumah voici la correction de ta vue:
+#primo evite de passer les identifiant dans les urls, donc cette vue ne doit avoir aucun parametre
+#tout doit passer par le POST
+import os
+def update_student_profile(request):
+    #il faut d'abord tester si c'est un etudiant qui accèdes, (ces infations sont dans le request)
+    if not request.user.etudiant:
+        return redirect('emploi:home')
+    else:
+        student = request.user.etudiant
+    
+      
+        if request.method == "POST":
+            student.telephone = request.POST.get('tel', student.telephone)
+            student.adresse = request.POST.get('adress', student.adresse)
+            if 'imageStudent' in request.FILES:
+                if student.photo and os.path.isfile(student.photo.path):
+                    os.remove(student.photo.path)
+                student.photo = request.FILES['imageStudent']
+            student.save()
+    return redirect('account:profile')
+
+
+def prof_profile_consulting(request,prof):
+    teacher = get_object_or_404(A_model.Teacher,user__username=prof)
+    form = TeacherProfilForm(user=request.user, instance=teacher)
+    return render(request,'profil/consulte_profile.html',{'teacher':teacher,'form':form})

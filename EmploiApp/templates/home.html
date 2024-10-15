@@ -71,7 +71,7 @@
                             <a href="#">{{ seance.professeur.user.first_name }}</a>
                         </div>
                     </div>
-                    <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+                    <a href="{% url 'account:profil_prof' seance.professeur.user.username %}" class="btn btn-bg-light btn-active-color-primary btn-sm">Professeur</a>
                 </div>
                 {% empty %}
                 <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>

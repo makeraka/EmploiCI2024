@@ -177,7 +177,7 @@ class Seance(models.Model):
     day_week = models.IntegerField(choices=DAYS_OF_WEEK)
     h_start = models.TimeField(auto_now=False, auto_now_add=False)
     h_end = models.TimeField(auto_now=False, auto_now_add=False)
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="seance")
     profDispoWeek = models.ForeignKey(ProfDispoWeek, on_delete=models.CASCADE, verbose_name="Disponibilité du prof")
     group = models.ManyToManyField(Group)
 
