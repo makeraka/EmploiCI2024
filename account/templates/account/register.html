@@ -40,12 +40,12 @@
                                 <h4 class="text-center text-primary">Vérifier vos informations pour activer votre compte</h4>
                             
                                 <div class="form-floating mb-3">
-                                    <input type="text" name="pv_bac" class="form-control" id="floatingInput" placeholder="PV BAC">
-                                    <label for="floatingInput">PV BAC</label>
+                                    <input type="text" name="matricule" class="form-control" id="floatingInput" placeholder="PV BAC">
+                                    <label for="floatingInput">Matricule</label>
                                 </div>
                             
                                 <select class="form-select form-select-lg mb-3" name="departement" aria-label="Choisir le Département">
-                                    <option selected>Choisir le Département</option>
+                                    <option selected>Département</option>
                                     {% for departement in departements %}
                                         <option value="{{departement.slug}}">{{departement.label}}</option>
                                     {% endfor %}
@@ -93,16 +93,7 @@
 
                             </div>
                         </div>
-                        <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
-                            <div class="text-white px-3 py-4 p-md-5 mx-md-4">
-                                <h4 class="mb-4 text-center">Votre Emploi du temps en temps Réel</h4>
-                                <p class="small mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                    eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-                                    nostrud
-                                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>
             </div>

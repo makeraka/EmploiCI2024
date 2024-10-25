@@ -7,13 +7,15 @@ from django.contrib.auth.models import AbstractBaseUser, AbstractUser, User
 
 # Class Utilisateur Etudiant  personnalisé
 
+
+
 class Etudiant(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     group = models.ForeignKey('EmploiApp.Group', on_delete=models.CASCADE)
-    telephone = models.CharField(max_length = 20)
-    pv = models.CharField(max_length = 150)
-    photo = models.ImageField(upload_to='student_profils')
-    adresse = models.CharField(max_length=100)
+    telephone = models.CharField(max_length = 20,blank=True, null=True )
+
+    photo = models.ImageField(upload_to='student_profils', null=True, blank=True)
+    adresse = models.CharField(max_length=100,blank=True, null=True)
     def __str__(self):
         return f'{self.user.username}-{self.user.first_name}-{self.user.last_name}'
 
@@ -35,6 +37,10 @@ class Teacher(models.Model):
     
     class Meta:
         verbose_name= 'Professeur'
+        
+        
+    def __str__(self):
+        return f'{self.user.username}'
 
 
 

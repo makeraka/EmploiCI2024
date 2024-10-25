@@ -2,10 +2,10 @@ from django.db import models
 from .custom_manager import ProfDispoWeekManagerActivation  
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from datetime import datetime, timedelta
 
 # Create your models here.
-
+# CLASS_TYPE =['0']
 
 class Department(models.Model):
     
@@ -73,6 +73,7 @@ class Course(models.Model):
 class Classroom(models.Model):
     label = models.CharField(max_length=50)
     capacity = models.IntegerField()
+    class_type = models.CharField(max_length=20)
     busy = models.BooleanField()
     deleted = models.BooleanField(default=False)
 
@@ -124,6 +125,19 @@ class ProfDispoWeek(models.Model):
     busy = models.BooleanField(default=False)  # Vérifie si la disponibilité est affectée ou pas
     occupied_intervals = models.JSONField(default=list, blank=True,null=True)  # Stocker les intervalles occupés
     
+    #VALIDATIONS DE DONNEES
+    def clean(self):
+        super().clean()  # Appel du clean() de la classe parente
+        # convertir les temps en datetime pour le même jour
+        start_datetime = datetime.combine(datetime.today(), self.start_time)
+        end_datetime = datetime.combine(datetime.today(), self.end_time)
+        difference_en_heures = (end_datetime - start_datetime) / timedelta(hours=1)
+
+        if difference_en_heures < 2:
+            raise ValidationError(
+                _('La différence entre l\'heure de début et l\'heure de fin doit être d\'au moins 2 heures, actuellement %(difference)s heures.'),
+                params={'difference': difference_en_heures})
+       
     def update_intervals(self, new_start=None, new_end=None):
         if new_start is not None and new_end is not None:
             # Convertir les objets time en chaînes
@@ -186,9 +200,11 @@ class Seance(models.Model):
         self.clean()
         
         # Appeler la méthode save de la classe parente pour sauvegarder la séance
-        super().save(*args, **kwargs)
-
+        
+        super().save(*args,**kwargs)
+    
         # Mettre à jour les intervalles dans la disponibilité du professeur
+      
         self.profDispoWeek.update_intervals(self.h_start, self.h_end)
         
         # Marquer la disponibilité du professeur comme occupée
@@ -264,15 +280,25 @@ class Seance(models.Model):
             if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
                 raise ValidationError(_('Cette salle est déjà réservée à ce moment pour un autre cours.'))
 
-        # # Vérifier les conflits pour le groupe
+        # Vérifier les conflits pour le groupe
+        
+        # print("GROUPE CHOISIS ++++++++",self.group.all())
+        # print("jours CHOISIS ++++++++",self.day_week)
+        # seances = Seance.objects.filter(day_week=self.day_week)
+        # for seance in seances:
+        #     conflits = [group for group in seance.group.all() if group in self.group.all()]
+        #     if len(conflits)>0:
+        #         raise ValidationError("L'un des groupes choisi a deja cours pendant ce temps")
+               
         # conflicts = Seance.objects.filter(
         #     group__in=self.group.all(),
         #     day_week=self.day_week,
         # ).exclude(pk=self.pk)
+        
 
-        for conflict in conflicts:
-            if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
-                raise ValidationError(_('Ce groupe a déjà une séance à ce moment.'))
+        # for conflict in conflicts:
+        #     if not (self.h_end <= conflict.h_start or self.h_start >= conflict.h_end):
+        #         raise ValidationError(_("L'un des groupes selectionné a déjà une seance à ce moment."))
 
         # Vérifier la capacité de la salle
         # from account.models import Etudiant

@@ -24,13 +24,13 @@ def register(request):
     if request.method == "POST": 
         # le Premier formulaire est soumis
         if request.POST.get('first'):
-            pv = request.POST['pv_bac']
+            matricule = request.POST['matricule']
             choosed_department = request.POST['departement']
             department = get_object_or_404(E_model.Department, slug=choosed_department)
 
             try:
                 # Vérification de l'existence de l'étudiant
-                etudiant = A_model.Etudiant.objects.get(group__licence__department=department, pv=pv) 
+                etudiant = A_model.Etudiant.objects.get(group__licence__department=department, user__username=matricule) 
                 check = False
                 context['username'] = etudiant.user.username
             except A_model.Etudiant.DoesNotExist:
@@ -84,14 +84,13 @@ def loginView(request):
         matricule = request.POST.get('username')
         password = request.POST.get('password')
 
-        try:
-            user = authenticate(username=matricule, password=password)
-            if user:
-                login(request,user)
-                return redirect('emploi:app_home')
-               
-        except:
-            messages.error(request,'Erreur de Connexion')
+    
+        user = authenticate(username=matricule, password=password)
+        if user:
+            login(request,user)
+            return redirect('emploi:app_home')     
+        else:
+            messages.error(request,'Informations de connexion invalides')
         
     return render(request,"account/login.html")
 
