@@ -18,7 +18,7 @@
             {% endif %}
         </div>
         <h3 class="card-title align-items-start flex-column text-center ">
-            <span class="card-label fw-bold fs-1 mb-1 text-white">Disponibilités des Salles de Classe</span>
+            <span class="card-label fw-bold fs-1 mb-1 text-white">Salles de Classes Disponibles</span>
         </h3>
         <!-- search form -->
         <div class="">
@@ -60,44 +60,35 @@
 
                                 <!-- Collapse button for each classroom -->
                                 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ classroom.pk }}" aria-expanded="false" aria-controls="collapse{{ classroom.pk }}">
-                                    Voir les occupations
+                                    Voir les disponibilités
                                 </button>
 
                                 <!-- Collapse content for classroom sessions -->
+                               <!-- Collapse content for classroom sessions -->
                                 <div class="collapse mt-3" id="collapse{{ classroom.pk }}">
-                                    <ul class="list-group">
-                                        {% for seance in seances %}
-                                            {% if seance.classroom == classroom %}
-                                
-                                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="row">
+                                    {% for seance in seances %}
+                                        {% if seance.classroom != classroom %}
+                                            <!-- Chaque élément de disponibilité en 4 colonnes -->
+                                            <div class="col-md-3 mb-4">
                                                 <div class="card border-left-primary shadow h-100 py-2">
                                                     <div class="card-body">
-                                                        <div class="row no-gutters align-items-center">
-                                                            <div class="col mr-2">
-                                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                                    {{ seance.get_day_week_display }} : de {{ seance.h_start }} à {{ seance.h_end }}
-                                                                </div>
-                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                                    Cours : {{ seance.course.label }}
-                                                                </div>
-                                                                <div class="mt-2 text-gray-600">
-                                                                    Professeur : {{ seance.professeur }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-auto">
-                                                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                                            </div>
+                                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                            {{ seance.get_day_week_display }} : de {{ seance.h_start }} à {{ seance.h_end }}
                                                         </div>
+                                                       
                                                     </div>
                                                 </div>
                                             </div>
-                                            
-                                            {% endif %}
-                                        {% empty %}
-                                        <li class="list-group-item">Aucune séance programmée</li>
-                                        {% endfor %}
-                                    </ul>
+                                        {% endif %}
+                                    {% empty %}
+                                        <div class="col-12">
+                                            <li class="list-group-item">Aucune séance programmée</li>
+                                        </div>
+                                    {% endfor %}
                                 </div>
+                                </div>
+
 
                             </div>
                         </div>

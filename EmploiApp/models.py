@@ -60,9 +60,19 @@ class Group(models.Model):
 
       
 class Course(models.Model):
+    COURSE_TYPE_CHOICES = [
+        ('M', 'Magistral'),
+        ('TP', 'Travaux Pratiques'),
+    ]
   
     label = models.CharField(max_length=50)
     semestre = models.ForeignKey(Semestre, on_delete=models.CASCADE)
+    course_type = models.CharField(max_length=2, choices=COURSE_TYPE_CHOICES, default='M')  # Type de cours
+    duration = models.PositiveIntegerField(
+        default=1,  # Valeur par défaut pour la durée du cours en heures
+        help_text="Durée totale du cours en heures"
+    )
+    syllabus = models.FileField(upload_to='syllabus/', null=True, blank=True) #plan de cours 
     # teacher = models.ForeignKey('account.Teacher', on_delete=models.CASCADE)  (un cours n'appartient pas à un professeur)
     deleted = models.BooleanField(default=False)
 
@@ -71,15 +81,19 @@ class Course(models.Model):
 
 
 class Classroom(models.Model):
+    CLASSROOM_TYPE_CHOICES = [
+        ('A', 'Amphithéâtre'),
+        ('TP', 'Salle de TP'),
+    ]
+
     label = models.CharField(max_length=50)
+    classroom_type = models.CharField(max_length=2, choices=CLASSROOM_TYPE_CHOICES, default='A', help_text="Type de la salle")  # Type de salle
     capacity = models.IntegerField()
-    class_type = models.CharField(max_length=20)
     busy = models.BooleanField()
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.label
-
 
     def check_busy(self):
         #vérifie si une seance est actuellement dans cette classe pour mettre le busy à false ou true

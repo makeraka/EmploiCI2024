@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="card mb-5 mb-xl-8">
+    <!--begin::Header-->
+    <div class="card-header border-0 pt-5 bg-primary">
+        <div class="col-12">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        <h3 class="card-title align-items-start flex-column text-center ">
+            <span class="card-label fw-bold fs-1 mb-1 text-white">Salles de Classes Occupées</span>
+        </h3>
+        <!-- search form -->
+        <div class="">
+            <form class="d-flex" role="search" method="POST">
+                {% csrf_token %}
+                <select name="day" class="form-control me-2">
+                    <option value="">Sélectionner un Jour</option>
+                    <option value="0">Lundi</option>
+                    <option value="1">Mardi</option>
+                    <option value="2">Mercredi</option>
+                    <option value="3">Jeudi</option>
+                    <option value="4">Vendredi</option>
+                    <option value="5">Samedi</option>
+                    <option value="6">Dimanche</option>
+                </select>
+                <select name="classroom" class="form-control me-2">
+                    <option value="">Sélectionner une salle</option>
+                    {% for classroom in classrooms %}
+                    <option value="{{ classroom.pk }}">{{ classroom.label }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-white" type="submit">Filtrer </button>
+            </form>
+        </div>
+    </div>
+    <!--end::Header-->
+    <!--begin::Body-->
+    <div class="card-body py-3">
+        <!--begin::Table container-->
+        <div class="table-responsive">
+            <div class="container mt-4">
+                <div class="row">
+                    <!-- Boucle à travers les salles de classe -->
+                    {% for classroom in classrooms %}
+                    <div class="col-md-12 mb-4">
+                        <div class="card card-custom shadow-lg h-100">
+                            <div class="card-body">
+                                <h4>{{ classroom.label }}</h4>
+
+                                <!-- Collapse button for each classroom -->
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ classroom.pk }}" aria-expanded="false" aria-controls="collapse{{ classroom.pk }}">
+                                    Voir les occupations
+                                </button>
+
+                                <!-- Collapse content for classroom sessions -->
+                                <div class="collapse mt-3" id="collapse{{ classroom.pk }}">
+                                    <div class="row">
+                                        <ul class="list-group">
+                                            {% for seance in seances %}
+                                                {% if seance.classroom == classroom %}
+                                                <div class="col-xl-3 col-md-6 mb-4">
+                                                    <div class="card border-left-primary shadow h-100 py-2">
+                                                        <div class="card-body">
+                                                            <div class="row no-gutters align-items-center">
+                                                                <div class="col mr-2">
+                                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                        {{ seance.get_day_week_display }} : de {{ seance.h_start }} à {{ seance.h_end }}
+                                                                    </div>
+                                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                                        Cours : {{ seance.course.label }}
+                                                                    </div>
+                                                                    <div class="mt-2 text-gray-600">
+                                                                        Professeur : {{ seance.professeur }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% empty %}
+                                            <li class="list-group-item">Aucune séance programmée</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Table-->
+    </div>
+    <!--end::Body-->
+</div>
+
+<!-- MODAL DE CREATION -->
+{% include "teacher/create_modal_form.html" %}
+{% include "teacher/edit_modal.html" %}
+{% include "teacher/delete_confirm_modal.html" %}
+
+<style>
+    .card-custom {
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card-custom .card-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    .card-custom .card-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+    .card-custom .card-text {
+        font-size: 0.875rem;
+    }
+</style>
+
+<!-- GESTION DU MODAL -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editDispoBtns = document.querySelectorAll('.edit-dispo-btn');
+        editDispoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const classroomId = this.getAttribute('data-id');
+                const dayWeek = this.getAttribute('data-day');
+                const startTime = this.getAttribute('data-start-time');
+                const endTime = this.getAttribute('data-end-time');
+
+                document.getElementById('dispo-id').value = classroomId;
+                document.getElementById('day-week').value = dayWeek;
+                document.getElementById('start-time').value = startTime;
+                document.getElementById('end-time').value = endTime;
+            });
+        });
+
+        const deleteDispoBtns = document.querySelectorAll('.delete-dispo-btn');
+        deleteDispoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const classroomId = this.getAttribute('data-id');
+                const day = this.getAttribute('data-day');
+                const startTime = this.getAttribute('data-start-time');
+                const endTime = this.getAttribute('data-end-time');
+
+                const modalBody = document.querySelector('#exampleModal .modal-body p');
+                modalBody.textContent = `Vous êtes sur le point de supprimer la disponibilité du ${day} de ${startTime} à ${endTime}.`;
+                document.getElementById('delete-dispo-id').value = classroomId;
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

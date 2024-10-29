@@ -220,6 +220,39 @@ def delete_dispo(request):
 
 
 
+# ************************************occupations des salles =========================
+
+
+@login_required(login_url="account:app_login")
+def dispo_salle_occup(request):
+    classrooms = Classroom.objects.all()
+    seances = Seance.objects.all()
+    
+    # Si un filtre est appliqué
+    if request.method == "POST":
+        day_choosed = request.POST.get('day')
+        classroom_choosed = request.POST.get('classroom')
+        
+        if classroom_choosed:
+            classroom = get_object_or_404(Classroom, pk=classroom_choosed)
+            seances = seances.filter(classroom=classroom)
+            classrooms = Classroom.objects.filter(pk=classroom_choosed)
+            
+            #le filtre selon le jour n'a plus d'importance selon la logique d'affichage, puisque
+            # sur chaque salle, on boucle tous les jours d'occupation
+        # if day_choosed:
+        #     seances = seances.filter(day_week=day_choosed)
+
+    context = {
+        'seances': seances,
+        'classrooms': classrooms,
+    }
+    return render(request, 'classroom/nondispo.html', context)
+
+
+
+
+
 # Disponibilité des salles =========================
 
 
