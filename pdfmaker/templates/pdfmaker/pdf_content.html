@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -55,6 +57,8 @@
     
     <h1>Emploi du Temps</h1>
     <h2>Licence: {{ licence }} ({{ department.label }})</h2>
+    <img src="{% static 'assets/media/auth/image.jpg' %}" alt="Description de l'image" width="300" height="200">
+
 
     <table>
         <thead>

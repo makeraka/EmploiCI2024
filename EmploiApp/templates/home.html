@@ -2,115 +2,118 @@
 {% load static %}
 
 {% block head_page %}
-    <!-- Affichage de la séance actuelle -->
-    {% if current_seance %}
-    <div class="d-flex flex-stack position-relative mt-8 alert alert-success">
-        <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
-        <div class="fw-semibold ms-5 text-gray-600">
-            <h1 class="text-success">Seance Actuelle</h1>
-            <div class="fs-1 text-primary">{{ current_seance.h_start|date:"H:i" }} - {{ current_seance.h_end|date:"H:i" }}
-                <span class="fs-7 text-gray-400 text-uppercase">{{ current_seance.h_start|date:"A" }}</span>
-            </div>
-            <div class="row">
-                <p class="fs-2 ">Cours : {{current_seance.course.label}}</p>
-            </div>
-            <div class="row">
-                <p class="fs-3">Dans : {{current_seance.classroom.label}}</p>
-            </div>
-            <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ current_seance.course.name }}</a>
-            <div class="text-gray-500">Animé par
-                <a href="#">{{ current_seance.course.teacher.user.first_name }}</a>
-            </div>
+<!-- Affichage de la séance actuelle -->
+{% if current_seance %}
+<div class="d-flex flex-stack position-relative mt-8 alert alert-success">
+    <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
+    <div class="fw-semibold ms-5 text-gray-600">
+        <h1 class="text-success">Seance Actuelle</h1>
+        <div class="fs-1 text-primary">{{ current_seance.h_start|date:"H:i" }} - {{ current_seance.h_end|date:"H:i" }}
+            <span class="fs-7 text-gray-400 text-uppercase">{{ current_seance.h_start|date:"A" }}</span>
         </div>
-        <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+        <div class="row">
+            <p class="fs-2 ">Cours : {{current_seance.course.label}}</p>
+        </div>
+        <div class="row">
+            <p class="fs-3">Dans : {{current_seance.classroom.label}}</p>
+        </div>
+        <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ current_seance.course.name }}</a>
+        <div class="text-gray-500">Animé par
+            <a href="#">{{ current_seance.course.teacher.user.first_name }}</a>
+        </div>
     </div>
-    {% else %}
-        <p class="alert alert-info">Pas de cours pour le moment ... !</p>
-    {% endif %}
+    <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+</div>
+{% else %}
+<p class="alert alert-info">Pas de cours pour le moment ... !</p>
+{% endif %}
 {% endblock head_page %}
 
 {% block content %}
 <!--begin::Card body-->
 <div class="card-body">
     <!--begin::Dates-->
-    <ul class="nav nav-pills d-flex flex-nowrap hover-scroll-x py-2">
+    <ul class="nav nav-pills d-flex flex-nowrap hover-scroll-x py-2" st>
         {% for day in days_of_week %}
         <li class="nav-item me-1">
-            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 {% if selected_date == day %}btn-active-primary active{% else %}btn-light{% endif %}" 
-            href="?date={{ day|date:'Y-m-d' }}">
+            <a class="nav-link btn d-flex flex-column flex-center rounded-pill min-w-45px me-2 py-4 px-3 {% if selected_date == day %}btn-active-primary active{% else %}btn-light{% endif %}"
+                href="?date={{ day|date:'Y-m-d' }}">
                 <span class="opacity-50 fs-7 fw-semibold">{{ day|date:"l" }}</span>
                 <span class="fs-6 fw-bold">{{ day|date:"d" }}</span>
             </a>
         </li>
         {% endfor %}
+        <a href="{% url 'create_pdf_prof'%}" class="btn btn-primary">Mon emploie </a>
     </ul>
+
     <!--end::Dates-->
 
     <!--begin::Tab Content-->
 
     {% if user.is_authenticated %}
-        {% if user.etudiant %}
-        <div class="tab-content">
-            <div class="tab-pane fade show active">
-                <!-- Itération sur les séances du jour sélectionné -->
-                {% for seance in seances %}
-                <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
-                    <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
-                    <div class="fw-semibold ms-5 text-gray-600">
-                        <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
-                            <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
-                        </div>
-                        <div class="row">
-                            <p class="fs-2 ">Cours : {{seance.course.label}}</p>
-                        </div>
-                        <div class="row">
-                            <p class="fs-3">Dans : {{seance.classroom.label}}</p>
-                        </div>
-                        <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
-                        <div class="text-gray-500">Animé par
-                            <a href="#">{{ seance.professeur.user.first_name }}</a>
-                        </div>
+    {% if user.etudiant %}
+    <div class="tab-content">
+        <div class="tab-pane fade show active">
+            <!-- Itération sur les séances du jour sélectionné -->
+            {% for seance in seances %}
+            <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
+                <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
+                <div class="fw-semibold ms-5 text-gray-600">
+                    <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
+                        <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
                     </div>
-                    <a href="{% url 'account:profil_prof' seance.professeur.user.username %}" class="btn btn-bg-light btn-active-color-primary btn-sm">Professeur</a>
-                </div>
-                {% empty %}
-                <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        {% elif user.teacher %}
-        <div class="tab-content">
-            <div class="tab-pane fade show active">
-                {% for seance in seances_teacher %}
-                <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
-                    <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
-                    <div class="fw-semibold ms-5 text-gray-600">
-                        <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
-                            <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
-                        </div>
-                        <div class="row">
-                            <p class="fs-2 ">Cours : {{seance.course.label}}</p>
-                        </div>
-                        <div class="row">
-                            <p class="fs-3">Dans : {{seance.classroom.label}}</p>
-                        </div>
-                        <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
-                        <div class="text-gray-500">Animé par 
-                            <a href="#">Moi</a>
-                        </div>
+                    <div class="row">
+                        <p class="fs-2 ">Cours : {{seance.course.label}}</p>
                     </div>
-                    <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+                    <div class="row">
+                        <p class="fs-3">Dans : {{seance.classroom.label}}</p>
+                    </div>
+                    <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
+                    <div class="text-gray-500">Animé par
+                        <a href="#">{{ seance.professeur.user.first_name }}</a>
+                    </div>
                 </div>
-                {% empty %}
-                <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
-                {% endfor %}
+                <a href="{% url 'account:profil_prof' seance.professeur.user.username %}"
+                    class="btn btn-bg-light btn-active-color-primary btn-sm">Professeur</a>
             </div>
+            {% empty %}
+            <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
+            {% endfor %}
         </div>
+    </div>
 
-        {% else %}
-            <h3>Aucune condition vérifiée</h3>
-        {% endif %}
+    {% elif user.teacher %}
+    <div class="tab-content">
+        <div class="tab-pane fade show active">
+            {% for seance in seances_teacher %}
+            <div class="d-flex flex-stack position-relative mt-8 alert alert-primary">
+                <div class="position-absolute h-100 w-4px bg-primary rounded top-0 start-0"></div>
+                <div class="fw-semibold ms-5 text-gray-600">
+                    <div class="fs-1 text-primary">{{ seance.h_start|date:"H:i" }} - {{ seance.h_end|date:"H:i" }}
+                        <span class="fs-7 text-gray-400 text-uppercase">{{ seance.start_time|date:"A" }}</span>
+                    </div>
+                    <div class="row">
+                        <p class="fs-2 ">Cours : {{seance.course.label}}</p>
+                    </div>
+                    <div class="row">
+                        <p class="fs-3">Dans : {{seance.classroom.label}}</p>
+                    </div>
+                    <a href="#" class="fs-5 fw-bold text-gray-800 text-hover-primary mb-2">{{ seance.course.name }}</a>
+                    <div class="text-gray-500">Animé par
+                        <a href="#">Moi</a>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-bg-light btn-active-color-primary btn-sm">Voir</a>
+            </div>
+            {% empty %}
+            <p class="alert alert-info">Vous n'avez pas cours aujourd'hui.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <h3>Aucune condition vérifiée</h3>
+    {% endif %}
     {% endif %}
 
 
@@ -120,3 +123,20 @@
 <!--end::Card body-->
 
 {% endblock content %}
+
+<style>
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+</style>
